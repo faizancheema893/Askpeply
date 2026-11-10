@@ -1,0 +1,83 @@
+{%- comment -%}
+  AskPeply · Ask bar (app embed)
+  Merchants turn this on in Theme editor → App embeds.
+  Settings come from the AskPeply dashboard (app-data metafield).
+{%- endcomment -%}
+
+{%- assign c = app.metafields.askpeply.config.value -%}
+{%- assign position = c.position | default: 'right' -%}
+{%- assign side = c.sideOffset | default: 24 -%}
+{%- assign bottom = c.bottomOffset | default: 20 -%}
+{%- assign cyan = c.accentCyan | default: '#38BDF8' -%}
+{%- assign violet = c.accentViolet | default: '#8B5CF6' -%}
+{%- assign fuchsia = c.accentFuchsia | default: '#D946EF' -%}
+{%- assign bot_name = c.botName | default: 'AskPeply' -%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
+
+<div
+  class="ap-root apb apb--{{ position }}"
+  style="--apb-side: {{ side }}px; --apb-bottom: {{ bottom }}px; --ap-cyan: {{ cyan }}; --ap-cyan-rgb: {{ cyan | color_extract: 'red' }}, {{ cyan | color_extract: 'green' }}, {{ cyan | color_extract: 'blue' }}; --ap-violet: {{ violet }}; --ap-violet-rgb: {{ violet | color_extract: 'red' }}, {{ violet | color_extract: 'green' }}, {{ violet | color_extract: 'blue' }}; --ap-fuchsia: {{ fuchsia }}; --ap-fuchsia-rgb: {{ fuchsia | color_extract: 'red' }}, {{ fuchsia | color_extract: 'green' }}, {{ fuchsia | color_extract: 'blue' }}; --apb-bar-bg: {{ c.barBg | default: '#0D132A' }}; --apb-bar-text: {{ c.barText | default: '#F2F1EE' }}; --apb-panel-bg: {{ c.panelBg | default: '#0D132A' }}; --apb-chip-bg: {{ c.chipBg | default: '#121934' }}; --apb-chip-text: {{ c.chipText | default: '#F2F1EE' }}; --apb-bot-bg: {{ c.botBg | default: '#1A2034' }}; --apb-bot-text: {{ c.botText | default: '#D7D8DC' }}; --apb-user-bg: {{ c.userBg | default: '#F1EFEA' }}; --apb-user-text: {{ c.userText | default: '#0A0A0C' }}; --apb-note: {{ c.noteColor | default: '#8A90A0' }};"
+  data-askbar
+  data-endpoint="{{ routes.root_url | append: '/apps/askpeply/chat' | replace: '//', '/' }}"
+>
+  <script type="application/json" data-apb-config>{{ c | json }}</script>
+
+  <div class="apb-dock">
+    <div class="apb-panel" role="dialog" aria-label="{{ bot_name | escape }} chat">
+      <div class="apb-head">
+        <div class="apb-title">
+          <span class="ap-status-dot"></span>
+          <span class="truncate">{{ bot_name | escape }} <small>· Live</small></span>
+        </div>
+        <div class="apb-head-actions">
+          <button type="button" class="apb-head-btn apb-reset" aria-label="Start a new chat" title="New chat">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button type="button" class="apb-head-btn apb-close" aria-label="Minimise chat" title="Minimise">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="apb-feed ap-chat-feed" aria-live="polite"></div>
+    </div>
+
+    <div class="apb-chips"></div>
+
+    <form class="apb-bar" novalidate>
+      <label class="apb-field">
+        <span class="ap-sr-only">{{ c.placeholder | default: 'Ask anything…' | escape }}</span>
+        <input class="apb-input" type="text" autocomplete="off" maxlength="600" enterkeyhint="send">
+        <span class="apb-ghost" aria-hidden="true"><span class="apb-ghost-text"></span><span class="apb-caret"></span></span>
+      </label>
+      <button type="button" class="apb-icon apb-mic" aria-label="Speak your question" title="Speak">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button type="button" class="apb-mini" aria-label="Open chat">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="submit" class="apb-send" aria-label="Send question">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </form>
+
+    <p class="apb-note"></p>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "AskPeply assistant",
+  "target": "body",
+  "javascript": "askbar.js",
+  "stylesheet": "askbar.css",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Customise the assistant, its questions and guardrails in the AskPeply app."
+    }
+  ]
+}
+{% endschema %}

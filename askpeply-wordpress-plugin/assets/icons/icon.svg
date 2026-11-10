@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+	<path fill="url(#apBrandNebula)" d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.1 21.4a.75.75 0 0 0 .9 0l4.4-1.238A9.957 9.957 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.96 7.96 0 0 1-4.074-1.116.75.75 0 0 0-.585-.067l-3.082.867.867-3.082a.75.75 0 0 0-.067-.585A7.96 7.96 0 0 1 4 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+	<defs>
+		<linearGradient id="apBrandNebula" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" stop-color="#38BDF8"/>
+			<stop offset="50%" stop-color="#8B5CF6"/>
+			<stop offset="100%" stop-color="#D946EF"/>
+		</linearGradient>
+	</defs>
+</svg>
+

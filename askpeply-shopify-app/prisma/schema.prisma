@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
+// enough when changing adapters.
+// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+datasource db {
+  provider  = "postgresql"
+  // Supabase: pooled connection for the app, direct (session) connection for schema changes.
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Session {
+  id            String    @id
+  shop          String
+  state         String
+  isOnline      Boolean   @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  locale        String?
+  collaborator  Boolean?  @default(false)
+  emailVerified Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+// ---------------------------------------------------------------
+// AskPeply
+// ---------------------------------------------------------------
+
+// One row per store: bot settings, guardrails and plan (JSON stored as text).
+model ShopSettings {
+  shop             String    @id
+  settings         String    @default("{}")
+  guardrails       String    @default("{}")
+  plan             String    @default("starter")
+  settingsSavedAt  DateTime?
+  guardrailsSavedAt DateTime?
+  testedAt         DateTime?
+  lastSyncAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+// Everything the assistant may answer from: synced products, pages,
+// policies, plus Q&A the merchant writes.
+model KnowledgeItem {
+  id        String   @id @default(cuid())
+  shop      String
+  source    String   // product | page | policy | custom
+  sourceId  String
+  title     String
+  content   String
+  url       String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([shop, source, sourceId])
+  @@index([shop])
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  shop          String
+  status        String    @default("answered") // answered | blocked | escalated | unanswered
+  firstQuestion String    @default("")
+  messageCount  Int       @default(0)
+  isTest        Boolean   @default(false)
+  pageUrl       String?
+  startedAt     DateTime  @default(now())
+  lastMessageAt DateTime  @default(now())
+  messages      Message[]
+
+  @@index([shop, lastMessageAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String       // user | assistant
+  content        String
+  flag           String?      // blocked | escalated | unanswered | written
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+}
+
+// Who looked at protected customer data (order lookups). No emails stored.
+model AccessLog {
+  id             String   @id @default(cuid())
+  shop           String
+  kind           String   // order_lookup | order_miss
+  ref            String   // order number
+  conversationId String?
+  createdAt      DateTime @default(now())
+
+  @@index([shop, createdAt])
+}

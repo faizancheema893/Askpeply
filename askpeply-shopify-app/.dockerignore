@@ -1,0 +1,7 @@
+.cache
+build
+node_modules
+.env
+prisma/dev.sqlite*
+*.zip
+.shopify

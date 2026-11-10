@@ -1,0 +1,2177 @@
+/**
+ * AskPeply WordPress Admin Design System
+ * Pixel-perfect adaptation of the AskPeply Shopify app UI.
+ * Supports default Light Mode and high-contrast Dark Mode with 100% stable roundedness.
+ *
+ * @package AskPeply
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ==========================================================================
+   1. Theme Variables: Light Mode (Default) & Dark Mode
+   ========================================================================== */
+
+:root {
+  /* Light Mode (Default) */
+  --ap-bg: #F8FAFC;
+  --ap-surface: #FFFFFF;
+  --ap-surface-2: #F8FAFC;
+  --ap-surface-hover: #F1F5F9;
+  --ap-border: #E2E8F0;
+  --ap-border-2: #EDF2F7;
+  --ap-border-strong: #CBD5E1;
+  --ap-text: #0F172A;
+  --ap-text-2: #334155;
+  --ap-text-3: #64748B;
+  --ap-accent: #7C5CF6;
+  --ap-accent-soft: #F3EFFF;
+  --ap-accent-text: #5B3FD6;
+  --ap-ink: #0F172A;
+  --ap-ink-text: #FFFFFF;
+  --ap-ink-hover: #1E293B;
+  --ap-input-bg: #FFFFFF;
+  --ap-input-border: #CBD5E1;
+  --ap-good-soft: #ECFDF3;
+  --ap-good-text: #067647;
+  --ap-good: #10B981;
+  --ap-bad-soft: #FEF3F2;
+  --ap-bad-text: #B42318;
+  --ap-bad: #EF4444;
+  --ap-warn-soft: #FFFAEB;
+  --ap-warn-text: #B54708;
+  --ap-info-soft: #EFF8FF;
+  --ap-info-text: #175CD3;
+  --ap-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --ap-card-bg: var(--ap-surface);
+  --ap-night: #0B0E14;
+  --ap-nebula: linear-gradient(120deg, #38BDF8, #8B5CF6 45%, #D946EF 75%, #38BDF8);
+  --ap-serif: 'Fraunces', Georgia, serif;
+}
+
+/* Dark Mode (.ap-dark) - Full-canvas deep obsidian with high contrast */
+html.ap-dark,
+body.ap-dark,
+.ap-dark {
+  --ap-bg: #0B0E14;
+  --ap-surface: #121824;
+  --ap-surface-2: #182030;
+  --ap-surface-hover: #1E293B;
+  --ap-border: #222C3E;
+  --ap-border-2: #1B2332;
+  --ap-border-strong: #334155;
+  --ap-text: #F8FAFC;
+  --ap-text-2: #CBD5E1;
+  --ap-text-3: #94A3B8;
+  --ap-accent: #A78BFA;
+  --ap-accent-soft: rgba(139, 92, 246, 0.18);
+  --ap-accent-text: #C4B5FD;
+  --ap-ink: #F8FAFC;
+  --ap-ink-text: #0B0E14;
+  --ap-ink-hover: #FFFFFF;
+  --ap-input-bg: #0B0E14;
+  --ap-input-border: #283347;
+  --ap-good-soft: rgba(16, 185, 129, 0.16);
+  --ap-good-text: #6EE7B7;
+  --ap-bad-soft: rgba(239, 68, 68, 0.16);
+  --ap-bad-text: #FCA5A5;
+  --ap-warn-soft: rgba(245, 158, 11, 0.16);
+  --ap-warn-text: #FCD34D;
+  --ap-info-soft: rgba(56, 189, 248, 0.16);
+  --ap-info-text: #7DD3FC;
+  --ap-card-bg: #121824;
+  --ap-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Global Dark Mode Canvas Coverage (Ensures headings and text are NEVER on light gray) */
+html.ap-dark,
+html.ap-dark body,
+html.ap-dark #wpwrap,
+html.ap-dark #wpcontent,
+html.ap-dark #wpbody,
+html.ap-dark #wpbody-content,
+body.ap-dark #wpwrap,
+body.ap-dark #wpcontent,
+body.ap-dark #wpbody,
+body.ap-dark #wpbody-content {
+  background: #0B0E14 !important;
+  color: #F8FAFC !important;
+}
+
+/* Subtle background stars effect in dark mode */
+.ap-fx {
+  display: none;
+}
+
+.ap-dark .ap-fx {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(45% 40% at 85% 0%, rgba(139, 92, 246, .22), transparent 70%),
+    radial-gradient(40% 35% at 0% 30%, rgba(56, 189, 248, .10), transparent 70%),
+    radial-gradient(45% 40% at 60% 100%, rgba(217, 70, 239, .12), transparent 70%);
+}
+
+.ap-dark .ap-fx::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .3;
+  background-image: radial-gradient(rgba(255, 255, 255, .22) 1px, transparent 1.2px);
+  background-size: 28px 28px;
+}
+
+/* ==========================================================================
+   2. Main Container & Scoped Typography
+   ========================================================================== */
+
+#ap-dashboard,
+.ap-admin-wrap {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100vh - 80px);
+  padding: 16px 20px 60px;
+  margin: 10px 0 40px 0;
+  max-width: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  background: var(--ap-bg);
+  color: var(--ap-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-sizing: border-box;
+  transition: background .2s ease, color .2s ease;
+}
+
+#ap-dashboard *,
+.ap-admin-wrap * {
+  box-sizing: border-box;
+}
+
+/* Headings text color enforcement */
+#ap-dashboard h1,
+#ap-dashboard h2,
+#ap-dashboard h3,
+#ap-dashboard h4,
+.ap-pagehead h1,
+.ap-card__title {
+  color: var(--ap-text) !important;
+}
+
+.ap-pagehead p,
+.ap-card__desc,
+.ap-muted {
+  color: var(--ap-text-2) !important;
+}
+
+.ap-faint,
+.ap-help {
+  color: var(--ap-text-3) !important;
+}
+
+/* ==========================================================================
+   3. Stable Roundedness on Form Controls (Never squared on click or focus)
+   ========================================================================== */
+
+#ap-dashboard input[type="text"],
+#ap-dashboard input[type="search"],
+#ap-dashboard input[type="number"],
+#ap-dashboard input[type="email"],
+#ap-dashboard input[type="url"],
+#ap-dashboard textarea,
+#ap-dashboard select,
+.ap-input,
+.ap-textarea,
+.ap-select {
+  width: 100%;
+  border: 1px solid var(--ap-input-border) !important;
+  background: var(--ap-input-bg) !important;
+  color: var(--ap-text) !important;
+  border-radius: 12px !important;
+  font: 400 13.5px/1.45 Inter, system-ui, sans-serif;
+  outline: none !important;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+#ap-dashboard input[type="text"]:focus,
+#ap-dashboard input[type="search"]:focus,
+#ap-dashboard input[type="number"]:focus,
+#ap-dashboard input[type="email"]:focus,
+#ap-dashboard textarea:focus,
+#ap-dashboard select:focus,
+.ap-input:focus,
+.ap-textarea:focus,
+.ap-select:focus {
+  border-radius: 12px !important;
+  border-color: var(--ap-accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(124, 92, 246, 0.22) !important;
+}
+
+#ap-dashboard input[type="text"],
+#ap-dashboard input[type="search"],
+#ap-dashboard input[type="number"],
+#ap-dashboard select,
+.ap-input,
+.ap-select {
+  height: 42px;
+  padding: 0 14px;
+}
+
+#ap-dashboard textarea,
+.ap-textarea {
+  padding: 10px 14px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+#ap-dashboard input::placeholder,
+#ap-dashboard textarea::placeholder,
+.ap-input::placeholder,
+.ap-textarea::placeholder {
+  color: var(--ap-text-3) !important;
+  opacity: 0.85;
+}
+
+#ap-dashboard input:disabled,
+#ap-dashboard textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Stable Roundedness on Buttons & Tabs */
+#ap-dashboard .ap-btn,
+#ap-dashboard .ap-nav-tab,
+#ap-dashboard .ap-theme-btn,
+#ap-dashboard .ap-preview-state-btn,
+#ap-dashboard .ap-preview-store-btn,
+#ap-dashboard .ap-source-tab,
+#ap-dashboard .ap-chip,
+.ap-btn,
+.ap-nav-tab {
+  border-radius: 9999px !important;
+  outline: none !important;
+}
+
+#ap-dashboard .ap-btn:focus,
+#ap-dashboard .ap-nav-tab:focus,
+#ap-dashboard .ap-theme-btn:focus,
+#ap-dashboard .ap-preview-state-btn:focus,
+#ap-dashboard .ap-preview-store-btn:focus,
+#ap-dashboard .ap-source-tab:focus,
+#ap-dashboard .ap-chip:focus,
+#ap-dashboard .ap-btn:active,
+#ap-dashboard .ap-nav-tab:active,
+#ap-dashboard button:focus,
+#ap-dashboard button:active {
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 9999px !important;
+}
+
+/* ==========================================================================
+   4. Top Bar & Branding
+   ========================================================================== */
+
+.ap-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 22px;
+  background: var(--ap-card-bg);
+  border: 1px solid var(--ap-border);
+  border-radius: 18px;
+  box-shadow: var(--ap-card-shadow);
+  margin-bottom: 20px;
+}
+
+.ap-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ap-brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #0D132A, #1A2034);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 12px -2px rgba(139, 92, 246, 0.3);
+}
+
+.ap-brand-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--ap-text);
+}
+
+.ap-version-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ap-surface-2);
+  color: var(--ap-text-3);
+  border: 1px solid var(--ap-border);
+}
+
+.ap-header-plan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+  background: var(--ap-accent-soft);
+  color: var(--ap-accent-text);
+  border: 1px solid transparent;
+  transition: transform .15s ease;
+}
+
+.ap-header-plan-pill:hover {
+  transform: translateY(-1px);
+}
+
+.ap-header-plan-pill.is-growth {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(217, 70, 239, 0.18));
+  color: #A78BFA;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.ap-header-plan-pill.is-pro {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(139, 92, 246, 0.2));
+  color: #38BDF8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.ap-plan-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.ap-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Theme Switcher */
+.ap-themeswitch {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--ap-surface-2);
+  border: 1px solid var(--ap-border);
+}
+
+.ap-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--ap-text-3);
+  font: 600 12px/1 Inter, sans-serif;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.ap-theme-btn:hover {
+  color: var(--ap-text);
+}
+
+.ap-theme-btn[aria-pressed="true"] {
+  background: var(--ap-surface);
+  color: var(--ap-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.ap-dark .ap-theme-btn[aria-pressed="true"] {
+  background: #1E293B;
+  color: #fff;
+}
+
+/* Master Toggle */
+.ap-master-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: var(--ap-surface-2);
+  border: 1px solid var(--ap-border);
+  border-radius: 999px;
+}
+
+.ap-master-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ap-text-3);
+}
+
+.ap-master-label.is-on {
+  color: var(--ap-good);
+}
+
+/* Switch Control */
+.ap-switch {
+  position: relative !important;
+  flex: 0 0 44px !important;
+  width: 44px !important;
+  height: 24px !important;
+  display: inline-block !important;
+}
+
+.ap-switch input {
+  position: absolute !important;
+  opacity: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  z-index: 2 !important;
+}
+
+.ap-switch span {
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 999px !important;
+  background: #D1D5DB !important;
+  transition: background .2s ease !important;
+  display: block !important;
+}
+
+.ap-dark .ap-switch span {
+  background: #334155 !important;
+}
+
+.ap-switch span::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 3px !important;
+  left: 3px !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+  transition: transform .2s ease !important;
+}
+
+.ap-switch input:checked+span {
+  background: #10B981 !important;
+}
+
+.ap-dark .ap-switch input:checked+span {
+  background: linear-gradient(135deg, #10B981, #059669) !important;
+}
+
+.ap-switch input:checked+span::after {
+  transform: translateX(20px) !important;
+}
+
+/* ==========================================================================
+   5. Navigation Tabs
+   ========================================================================== */
+
+.ap-nav-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.ap-nav-tab {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--ap-border);
+  background: var(--ap-surface);
+  color: var(--ap-text-2);
+  font: 600 13.5px/1 Inter, system-ui, sans-serif;
+  text-decoration: none;
+  transition: all .15s ease;
+}
+
+.ap-nav-tab:hover {
+  border-color: var(--ap-border-strong);
+  color: var(--ap-text);
+}
+
+.ap-nav-tab.is-active {
+  background: var(--ap-ink);
+  border-color: var(--ap-ink);
+  color: var(--ap-ink-text);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.15);
+}
+
+.ap-dark .ap-nav-tab.is-active {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 0 20px -5px rgba(139, 92, 246, 0.6);
+}
+
+.ap-nav-tab svg {
+  width: 16px;
+  height: 16px;
+  opacity: .85;
+}
+
+/* ==========================================================================
+   6. Page Header & Layout Grid
+   ========================================================================== */
+
+.ap-pagehead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.ap-pagehead h1 {
+  margin: 0;
+  font-family: var(--ap-serif);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.ap-pagehead p {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  max-width: 64ch;
+  line-height: 1.5;
+}
+
+.ap-pagehead__tools {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ap-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--ap-aside, 380px);
+  gap: 22px;
+  align-items: start;
+}
+
+.ap-main,
+.ap-aside {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  align-content: start;
+}
+
+.ap-aside {
+  position: sticky;
+  top: 48px;
+}
+
+@media (max-width: 1080px) {
+  .ap-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ap-aside {
+    position: static;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   7. Card Component
+   ========================================================================== */
+
+.ap-card {
+  position: relative;
+  background: var(--ap-card-bg);
+  border: 1px solid var(--ap-border);
+  border-radius: 18px;
+  box-shadow: var(--ap-card-shadow);
+}
+
+.ap-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px 0;
+}
+
+.ap-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+
+.ap-card__desc {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 64ch;
+}
+
+.ap-card__body {
+  padding: 18px 22px 22px;
+  display: grid;
+  gap: 16px;
+}
+
+.ap-card__body--flush {
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+}
+
+/* ==========================================================================
+   8. Buttons
+   ========================================================================== */
+
+.ap-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  font: 600 13px/1 Inter, system-ui, sans-serif;
+  text-decoration: none;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+
+.ap-btn--sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.ap-btn--primary {
+  background: var(--ap-ink);
+  color: var(--ap-ink-text);
+  border: 1px solid var(--ap-ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.ap-btn--primary:hover {
+  background: var(--ap-ink-hover);
+  color: var(--ap-ink-text);
+}
+
+.ap-dark .ap-btn--primary {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ap-dark .ap-btn--primary:hover {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+}
+
+.ap-btn--secondary {
+  background: var(--ap-surface);
+  color: var(--ap-text);
+  border: 1px solid var(--ap-border);
+}
+
+.ap-btn--secondary:hover {
+  background: var(--ap-surface-hover);
+  border-color: var(--ap-border-strong);
+  color: var(--ap-text);
+}
+
+.ap-btn--ghost {
+  background: transparent;
+  color: var(--ap-text-2);
+  border: 1px solid transparent;
+}
+
+.ap-btn--ghost:hover {
+  background: var(--ap-surface-hover);
+  color: var(--ap-text);
+}
+
+.ap-btn--pearl {
+  background: #FFFFFF;
+  color: #0F172A;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.ap-btn--pearl:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.ap-btn--glass {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ap-btn--glass:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+}
+
+.ap-btn--danger {
+  background: var(--ap-bad-soft);
+  color: var(--ap-bad-text);
+  border: 1px solid transparent;
+}
+
+.ap-btn--danger:hover {
+  background: var(--ap-bad);
+  color: #fff;
+}
+
+/* ==========================================================================
+   9. Hero Banner (Overview Tab - Clean full-width matching Shopify)
+   ========================================================================== */
+
+.ap-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--ap-night);
+  color: #F2F1EE;
+  padding: 34px 36px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ap-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 80% at 85% 10%, rgba(139, 92, 246, .45), transparent 60%),
+    radial-gradient(50% 70% at 60% 110%, rgba(217, 70, 239, .26), transparent 60%),
+    radial-gradient(40% 60% at 0% 0%, rgba(56, 189, 248, .18), transparent 60%);
+}
+
+.ap-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .4;
+  background-image: radial-gradient(rgba(255, 255, 255, .24) 1px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+.ap-hero__copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 14px;
+}
+
+.ap-hero__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: rgba(242, 241, 238, .8);
+}
+
+#ap-dashboard .ap-hero h2,
+#ap-dashboard .ap-hero .ap-hero__title,
+.ap-hero__title {
+  margin: 0;
+  font-family: var(--ap-serif);
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  color: #FFFFFF !important;
+}
+
+#ap-dashboard .ap-hero p,
+#ap-dashboard .ap-hero .ap-hero__text,
+.ap-hero__text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: rgba(242, 241, 238, 0.85) !important;
+  max-width: 58ch;
+}
+
+.ap-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.ap-livedot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38BDF8;
+  animation: ap-pulse 2.2s infinite;
+}
+
+.ap-livedot--off {
+  background: #F79009;
+  animation: none;
+}
+
+@keyframes ap-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, .55);
+  }
+
+  70% {
+    box-shadow: 0 0 0 9px rgba(56, 189, 248, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+  }
+}
+
+/* ==========================================================================
+   10. Metrics Strip
+   ========================================================================== */
+
+.ap-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 16px 20px;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .ap-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ap-metric {
+  display: grid;
+  gap: 4px;
+}
+
+.ap-metric__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ap-text-3);
+}
+
+.ap-metric__value {
+  font-family: var(--ap-serif);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ap-text);
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.ap-metric__hint {
+  font-size: 11.5px;
+  color: var(--ap-text-3);
+}
+
+/* Meter bar */
+.ap-meter {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ap-surface-2);
+  border: 1px solid var(--ap-border);
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.ap-meter span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #38BDF8, #8B5CF6);
+}
+
+/* ==========================================================================
+   11. Setup Checklist
+   ========================================================================== */
+
+.ap-check {
+  display: grid;
+}
+
+.ap-check__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--ap-border-2);
+}
+
+.ap-check__row:first-child {
+  border-top: 0;
+}
+
+.ap-check__num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ap-text-3);
+  background: var(--ap-surface-2);
+  border: 1px solid var(--ap-border);
+}
+
+.ap-check__row--done .ap-check__num {
+  background: var(--ap-good);
+  color: #fff;
+  border-color: transparent;
+}
+
+.ap-check__title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ap-text);
+}
+
+/* ==========================================================================
+   12. Test Chat Component (Unified Capsule with Inner Send Arrow)
+   ========================================================================== */
+
+.ap-chat__feed {
+  display: grid;
+  gap: 12px;
+  padding: 16px 20px;
+  max-height: 400px;
+  overflow-y: auto;
+  border-top: 1px solid var(--ap-border-2);
+}
+
+.ap-msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.ap-msg--user {
+  flex-direction: row-reverse;
+}
+
+.ap-avatar {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font: 700 12px/1 Inter, system-ui, sans-serif;
+  background: linear-gradient(135deg, #8B5CF6, #D946EF);
+}
+
+.ap-bubble {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.ap-msg--user .ap-bubble {
+  background: var(--ap-ink);
+  color: var(--ap-ink-text);
+  border-top-right-radius: 4px;
+}
+
+.ap-msg--bot .ap-bubble {
+  background: var(--ap-surface-2);
+  color: var(--ap-text);
+  border: 1px solid var(--ap-border-2);
+  border-top-left-radius: 4px;
+}
+
+.ap-dark .ap-msg--bot .ap-bubble {
+  border-left: 2px solid rgba(56, 189, 248, .6);
+}
+
+.ap-bubble u {
+  color: var(--ap-info-text);
+  text-decoration-thickness: 1px;
+}
+
+.ap-err {
+  font: 400 12px/1.5 monospace;
+  color: var(--ap-bad-text);
+  background: var(--ap-bad-soft);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.ap-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 20px 12px;
+}
+
+.ap-chip {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid var(--ap-border);
+  background: var(--ap-surface);
+  color: var(--ap-text);
+  border-radius: 999px !important;
+  height: 30px;
+  padding: 0 12px;
+  font: 500 12.5px/1 Inter, system-ui, sans-serif;
+  transition: all .15s ease;
+}
+
+.ap-chip:hover {
+  border-color: var(--ap-accent);
+}
+
+.ap-chip--risk {
+  color: var(--ap-bad-text);
+  border-color: color-mix(in srgb, var(--ap-bad-text) 30%, transparent);
+}
+
+.ap-chip--risk:hover {
+  background: var(--ap-bad-soft);
+  border-color: var(--ap-bad-text);
+}
+
+/* Unified Input Capsule */
+.ap-chat__input {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  position: relative !important;
+  margin: 10px 20px 20px !important;
+  padding: 4px 6px 4px 18px !important;
+  border-radius: 9999px !important;
+  background: var(--ap-input-bg) !important;
+  border: 1px solid var(--ap-border-strong) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.ap-chat__input:focus-within {
+  border-color: var(--ap-accent) !important;
+  box-shadow: 0 0 0 3px rgba(124, 92, 246, 0.2) !important;
+}
+
+#ap-dashboard .ap-chat__input input,
+#ap-dashboard .ap-chat__input .ap-test-input,
+#ap-dashboard .ap-chat__input .ap-input,
+.ap-chat__input input,
+.ap-chat__input .ap-test-input,
+.ap-chat__input .ap-input {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  border: none !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  height: 38px !important;
+  line-height: 38px !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  color: var(--ap-text) !important;
+}
+
+#ap-dashboard .ap-chat__input input:focus,
+#ap-dashboard .ap-chat__input .ap-test-input:focus,
+#ap-dashboard .ap-chat__input .ap-input:focus,
+.ap-chat__input input:focus,
+.ap-chat__input .ap-test-input:focus,
+.ap-chat__input .ap-input:focus {
+  border: none !important;
+  border-width: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+}
+
+.ap-chat__input .ap-send {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  border: 0 !important;
+  background: var(--ap-ink) !important;
+  color: var(--ap-ink-text) !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  flex: none !important;
+  transition: transform .15s ease;
+}
+
+.ap-dark .ap-chat__input .ap-send {
+  background: #334155 !important;
+  color: #fff !important;
+}
+
+.ap-chat__input .ap-send:hover {
+  transform: scale(1.05);
+}
+
+/* ==========================================================================
+   13. Appearance & Color Controls
+   ========================================================================== */
+
+.ap-themes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ap-theme {
+  appearance: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 10px;
+  border-radius: 14px !important;
+  border: 1px solid var(--ap-border);
+  background: var(--ap-surface);
+  display: grid;
+  gap: 8px;
+  font: 600 12.5px/1.2 Inter, system-ui, sans-serif;
+  color: var(--ap-text);
+  transition: all .15s ease;
+}
+
+.ap-theme:hover {
+  border-color: var(--ap-border-strong);
+}
+
+.ap-theme[aria-pressed="true"],
+.ap-theme.is-active {
+  border-color: var(--ap-ink);
+  box-shadow: 0 0 0 2px var(--ap-ink);
+}
+
+.ap-dark .ap-theme[aria-pressed="true"],
+.ap-dark .ap-theme.is-active {
+  border-color: #A78BFA;
+  box-shadow: 0 0 0 2px #A78BFA;
+}
+
+.ap-theme__swatch {
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 6px;
+  border: 1px solid rgba(127, 127, 127, .15);
+}
+
+.ap-theme__swatch i {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  opacity: .85;
+}
+
+.ap-theme__swatch b {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.ap-colors {
+  display: grid;
+  gap: 18px;
+}
+
+.ap-colors__group {
+  display: grid;
+  gap: 4px;
+}
+
+.ap-colors__group h4 {
+  margin: 0 0 4px;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--ap-text-2);
+}
+
+.ap-color {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 96px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--ap-border-2);
+}
+
+.ap-color:first-of-type {
+  border-top: 0;
+}
+
+.ap-color__well {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(127, 127, 127, .25);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ap-color__well input {
+  position: absolute;
+  inset: -8px;
+  width: calc(100% + 16px);
+  height: calc(100% + 16px);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.ap-color__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ap-text);
+}
+
+.ap-color__help {
+  font-size: 12px;
+  color: var(--ap-text-3);
+  margin-top: 2px;
+}
+
+.ap-color__hex {
+  height: 34px;
+  width: 100%;
+  border: 1px solid var(--ap-input-border);
+  background: var(--ap-input-bg);
+  border-radius: 10px !important;
+  padding: 0 8px;
+  font: 500 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
+  color: var(--ap-text);
+  outline: none;
+}
+
+/* ==========================================================================
+   14. Live Preview Stage (Pixel-Perfect Matching Screenshots 7-12)
+   ========================================================================== */
+
+.ap-stage__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.ap-seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--ap-surface-2);
+  border: 1px solid var(--ap-border);
+}
+
+.ap-preview-state-btn,
+.ap-preview-store-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--ap-text-3);
+  font: 600 12px/1 Inter, sans-serif;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.ap-preview-state-btn:hover,
+.ap-preview-store-btn:hover {
+  color: var(--ap-text);
+}
+
+.ap-preview-state-btn[aria-pressed="true"],
+.ap-preview-state-btn.is-active,
+.ap-preview-store-btn[aria-pressed="true"],
+.ap-preview-store-btn.is-active {
+  background: var(--ap-surface);
+  color: var(--ap-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.ap-dark .ap-preview-state-btn[aria-pressed="true"],
+.ap-dark .ap-preview-state-btn.is-active,
+.ap-dark .ap-preview-store-btn[aria-pressed="true"],
+.ap-dark .ap-preview-store-btn.is-active {
+  background: #1E293B;
+  color: #fff;
+}
+
+/* Preview Stage Container */
+.ap-preview-stage {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  border-radius: 16px;
+  border: 1px solid var(--ap-border);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Simulated Store Skeletons */
+.ap-shop {
+  position: absolute;
+  inset: 0;
+  padding: 18px;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  transition: background .2s ease;
+}
+
+.ap-shop--light {
+  background: #FFFFFF;
+}
+
+.ap-shop--dark {
+  background: #0B0E14;
+}
+
+.ap-shop__nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ap-shop__logo {
+  width: 70px;
+  height: 10px;
+  border-radius: 5px;
+}
+
+.ap-shop__links {
+  display: flex;
+  gap: 8px;
+}
+
+.ap-shop__links i {
+  width: 28px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.ap-shop__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.ap-shop__card {
+  height: 90px;
+  border-radius: 10px;
+}
+
+.ap-shop__line {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.ap-shop--light .ap-shop__logo,
+.ap-shop--light .ap-shop__line {
+  background: #E5E7EB;
+}
+
+.ap-shop--light .ap-shop__links i {
+  background: #F3F4F6;
+}
+
+.ap-shop--light .ap-shop__card {
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+}
+
+.ap-shop--dark .ap-shop__logo,
+.ap-shop--dark .ap-shop__line {
+  background: #1E293B;
+}
+
+.ap-shop--dark .ap-shop__links i {
+  background: #182030;
+}
+
+.ap-shop--dark .ap-shop__card {
+  background: #121824;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Mockup Widget Positioning */
+.ap-preview-mockup {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+/* 1. Chat Panel */
+.ap-mock-panel {
+  display: none;
+  background: var(--apb-panel-bg, #0D132A);
+  border-radius: 18px;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.ap-preview-mockup.is-chat .ap-mock-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.ap-mock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ap-mock-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 650;
+  color: #fff;
+}
+
+.ap-mock-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #38BDF8;
+}
+
+.ap-mock-header-tools {
+  display: flex;
+  gap: 6px;
+}
+
+.ap-mock-icon-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 0;
+  color: #9CA3AF;
+  display: grid;
+  place-items: center;
+}
+
+.ap-mock-feed {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ap-mock-msg {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.ap-mock-msg.is-user {
+  justify-content: flex-end;
+}
+
+.ap-mock-user-bubble {
+  background: var(--apb-user-bg, #FFFFFF);
+  color: var(--apb-user-text, #0D132A);
+  padding: 9px 14px;
+  border-radius: 16px 16px 4px 16px;
+  font-size: 12.5px;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  max-width: 85%;
+}
+
+.ap-mock-bot-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #A855F7;
+  color: #fff;
+  font-weight: 700;
+  font-size: 11px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.ap-mock-bot-bubble {
+  background: var(--apb-bot-bg, #182033);
+  color: var(--apb-bot-text, #F2F1EE);
+  padding: 10px 14px;
+  border-radius: 16px 16px 16px 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-left: 2px solid var(--ap-cyan, #38BDF8);
+  max-width: 88%;
+}
+
+.ap-mock-bot-bubble strong {
+  color: #fff;
+  font-weight: 650;
+}
+
+.ap-mock-bot-bubble a {
+  color: var(--ap-cyan, #38BDF8);
+  text-decoration: underline;
+}
+
+/* 2. Suggestion Chips */
+.ap-mock-chips {
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.ap-preview-mockup.is-open .ap-mock-chips {
+  display: flex;
+}
+
+.ap-mock-chip {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--apb-chip-bg, #1A2238);
+  color: var(--apb-chip-text, #FFFFFF);
+  padding: 8px 14px;
+  border-radius: 999px !important;
+  font: 600 12px/1.2 Inter, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  max-width: 90%;
+  text-align: right;
+}
+
+/* 3. AskBar Capsule & SEAMLESS INNER INPUT (Fix for Images 3 & 4) */
+#ap-dashboard #ap-mock-bar-element,
+.ap-mock-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  height: 48px !important;
+  padding: 4px 6px 4px 18px !important;
+  background: var(--apb-bar-bg, #141B2D) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+  width: 100% !important;
+  transition: width .2s ease;
+}
+
+.ap-preview-mockup.is-closed #ap-mock-bar-element,
+.ap-preview-mockup.is-closed .ap-mock-bar {
+  width: 250px !important;
+  margin-left: auto !important;
+}
+
+.ap-mock-input-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.ap-mock-typing-text {
+  display: none;
+  font-size: 13px;
+  color: var(--apb-bar-text, #FFFFFF);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ap-preview-mockup.is-closed .ap-mock-typing-text {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ap-mock-cursor {
+  color: var(--ap-cyan, #38BDF8);
+  font-weight: 700;
+  animation: ap-blink 1s infinite;
+}
+
+@keyframes ap-blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Fix: The input inside .ap-mock-bar MUST BE COMPLETELY TRANSPARENT with NO inner box */
+#ap-dashboard #ap-mock-input-field,
+#ap-dashboard .ap-mock-input,
+.ap-mock-bar input[type="text"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 38px !important;
+  width: 100% !important;
+  color: var(--apb-bar-text, #FFFFFF) !important;
+  font-size: 13.5px !important;
+}
+
+#ap-dashboard #ap-mock-input-field:focus,
+#ap-dashboard .ap-mock-input:focus,
+.ap-mock-bar input[type="text"]:focus {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+#ap-dashboard #ap-mock-input-field::placeholder,
+.ap-mock-bar input::placeholder {
+  color: var(--apb-bar-text, #FFFFFF) !important;
+  opacity: 0.65 !important;
+}
+
+.ap-preview-mockup.is-closed #ap-mock-input-field,
+.ap-preview-mockup.is-closed .ap-mock-input {
+  display: none !important;
+}
+
+.ap-mock-mic {
+  display: none;
+  color: rgba(255, 255, 255, 0.65);
+  margin-right: 2px;
+}
+
+.ap-preview-mockup.is-open .ap-mock-mic,
+.ap-preview-mockup.is-chat .ap-mock-mic {
+  display: flex;
+}
+
+.ap-mock-send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ap-violet, #8B5CF6), var(--ap-fuchsia, #D946EF) 65%, var(--ap-cyan, #38BDF8));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex: none;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
+/* 4. Disclaimer Note */
+.ap-mock-note {
+  display: none;
+  text-align: center;
+  font-size: 11px;
+  color: var(--apb-note, #64748B);
+  line-height: 1.3;
+  padding: 0 4px;
+}
+
+.ap-preview-mockup.is-open .ap-mock-note,
+.ap-preview-mockup.is-chat .ap-mock-note {
+  display: block;
+}
+
+/* ==========================================================================
+   15. Guardrails & Toggles (Fix for Image 8 Switches)
+   ========================================================================== */
+
+.ap-toggle {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 14px 0 !important;
+  border-top: 1px solid var(--ap-border-2) !important;
+  cursor: pointer !important;
+}
+
+.ap-toggle:first-child {
+  border-top: 0 !important;
+  padding-top: 2px !important;
+}
+
+.ap-toggle--disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+.ap-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .ap-grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   16. Knowledge Base
+   ========================================================================== */
+
+.ap-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ap-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px !important;
+  border: 1px solid var(--ap-border);
+  background: var(--ap-surface);
+  color: var(--ap-text-2);
+  font: 600 12.5px/1 Inter, sans-serif;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.ap-tab:hover {
+  border-color: var(--ap-border-strong);
+  color: var(--ap-text);
+}
+
+.ap-tab.is-active {
+  background: var(--ap-ink);
+  border-color: var(--ap-ink);
+  color: var(--ap-ink-text);
+}
+
+.ap-dark .ap-tab.is-active {
+  background: #6366F1;
+  color: #fff;
+  border-color: transparent;
+}
+
+.ap-tab__count {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(127, 127, 127, 0.18);
+}
+
+.ap-rows {
+  display: grid;
+}
+
+.ap-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 22px;
+  border-top: 1px solid var(--ap-border-2);
+  text-align: left;
+  width: 100%;
+  background: none;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ap-row:first-child {
+  border-top: 0;
+}
+
+.ap-row--hover:hover {
+  background: var(--ap-surface-hover);
+}
+
+.ap-row__main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.ap-row__title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ap-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ap-row__sub {
+  font-size: 12.5px;
+  color: var(--ap-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ap-row__meta {
+  font-size: 12px;
+  color: var(--ap-text-3);
+  white-space: nowrap;
+}
+
+.ap-tile {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+}
+
+.ap-tile--product {
+  background: rgba(124, 92, 246, .12);
+  color: #7C5CF6;
+}
+
+.ap-tile--page {
+  background: rgba(14, 165, 233, .12);
+  color: #0284C7;
+}
+
+.ap-tile--policy {
+  background: rgba(16, 185, 129, .12);
+  color: #059669;
+}
+
+.ap-tile--custom {
+  background: rgba(245, 158, 11, .14);
+  color: #D97706;
+}
+
+.ap-tile--document {
+  background: rgba(217, 70, 239, .12);
+  color: #C026D3;
+}
+
+.ap-price {
+  font: 600 13px/1 Inter, sans-serif;
+  color: var(--ap-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font: 600 11px/1 Inter, sans-serif;
+}
+
+.ap-tag--plain {
+  background: var(--ap-surface-2);
+  color: var(--ap-text-2);
+  border: 1px solid var(--ap-border);
+}
+
+.ap-tag--good,
+.ap-tag--answered,
+.ap-tag--success {
+  background: var(--ap-good-soft);
+  color: var(--ap-good-text);
+}
+
+.ap-tag--blocked {
+  background: var(--ap-bad-soft);
+  color: var(--ap-bad-text);
+}
+
+.ap-tag--escalated {
+  background: var(--ap-warn-soft);
+  color: var(--ap-warn-text);
+}
+
+.ap-tag--unanswered {
+  background: var(--ap-info-soft);
+  color: var(--ap-info-text);
+}
+
+.ap-drop {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 22px;
+  border: 1.5px dashed var(--ap-border-strong);
+  border-radius: 14px;
+  text-align: center;
+  background: var(--ap-surface-2);
+  cursor: pointer;
+  color: var(--ap-text);
+}
+
+.ap-drop:hover {
+  border-color: var(--ap-accent);
+}
+
+.ap-lock {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--ap-accent-soft);
+  color: var(--ap-accent-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   17. Pricing Plans Grid (Matching Screenshot 1)
+   ========================================================================== */
+
+.ap-plans {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+  margin-top: 18px;
+}
+
+@media (max-width: 960px) {
+  .ap-plans {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ap-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid var(--ap-border);
+  background: var(--ap-card-bg);
+  box-shadow: var(--ap-card-shadow);
+  color: var(--ap-text);
+}
+
+.ap-plan__name {
+  font-size: 14px;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ap-plan__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.ap-plan__price b {
+  font-family: var(--ap-serif);
+  font-weight: 600;
+  font-size: 46px;
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+
+.ap-plan__price span {
+  font-size: 13px;
+  color: var(--ap-text-2);
+}
+
+.ap-plan__for {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ap-text-2);
+  margin: 0;
+}
+
+.ap-plan__volume {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--ap-surface-2);
+  font-size: 13px;
+  border: 1px solid var(--ap-border);
+}
+
+.ap-plan__volume b {
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-plan ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 11px;
+  flex: 1;
+}
+
+.ap-plan li {
+  display: flex;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.ap-plan li svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--ap-good);
+}
+
+.ap-plan .ap-btn {
+  width: 100%;
+  height: 42px;
+}
+
+.ap-plan--featured {
+  background: var(--ap-night);
+  color: #F2F1EE;
+  border-color: transparent;
+  box-shadow: 0 24px 48px -28px rgba(124, 92, 246, .7);
+}
+
+.ap-plan--featured::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--ap-nebula);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.ap-plan--featured .ap-plan__for,
+.ap-plan--featured .ap-plan__price span {
+  color: rgba(242, 241, 238, .75);
+}
+
+.ap-plan--featured .ap-plan__volume {
+  background: rgba(255, 255, 255, .08);
+  border-color: rgba(255, 255, 255, .1);
+}
+
+.ap-plan--featured li svg {
+  color: #38BDF8;
+}
+
+/* ==========================================================================
+   18. Toast Alerts
+   ========================================================================== */
+
+.ap-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999999;
+  background: #0F172A;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ap-toast.is-error {
+  background: #EF4444;
+}
+
+/* Viewport Overflow Protection */
+body.toplevel_page_askpeply,
+body.toplevel_page_askpeply #wpwrap,
+body.toplevel_page_askpeply #wpcontent,
+body.toplevel_page_askpeply #wpbody,
+body.toplevel_page_askpeply #wpbody-content {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}

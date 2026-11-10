@@ -1,0 +1,207 @@
+:global(html),
+:global(body) {
+  margin: 0;
+  padding: 0;
+  background: #030510;
+}
+
+.index {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  overflow: hidden;
+  color: #f2f1ee;
+  background: #030510;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  text-align: center;
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 35% at 50% 30%, rgba(139, 92, 246, 0.28), transparent 70%),
+    radial-gradient(30% 25% at 25% 20%, rgba(56, 189, 248, 0.16), transparent 70%),
+    radial-gradient(30% 25% at 78% 45%, rgba(217, 70, 239, 0.14), transparent 70%);
+}
+
+.glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(60% 60% at 50% 35%, #000, transparent);
+  mask-image: radial-gradient(60% 60% at 50% 35%, #000, transparent);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 880px;
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  font: 500 11px/1 "JetBrains Mono", ui-monospace, Menlo, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #cfd2d8;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 10px 2px rgba(56, 189, 248, 0.8);
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp(34px, 6vw, 60px);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  font-weight: 800;
+  color: #fff;
+}
+
+.heading span {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.text {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+.form {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(13, 19, 42, 0.75);
+  backdrop-filter: blur(16px);
+  text-align: left;
+}
+
+.label {
+  flex: 1;
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: #cfd2d8;
+}
+
+.label small {
+  color: #7a8096;
+  font-size: 11.5px;
+}
+
+.label .error {
+  color: #f87171;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}
+
+.button {
+  margin-top: 21px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  background: #f1efea;
+  color: #0a0a0c;
+  font: 600 13.5px/1 Inter, system-ui, sans-serif;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 22px -8px rgba(139, 92, 246, 0.55), 0 0 30px -12px rgba(56, 189, 248, 0.4);
+}
+
+.button:hover {
+  background: #fff;
+}
+
+.list {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.list > li {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(13, 19, 42, 0.75);
+  text-align: left;
+}
+
+.list strong {
+  color: #fff;
+  font-size: 14.5px;
+}
+
+.list span {
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@media only screen and (max-width: 720px) {
+  .list {
+    grid-template-columns: 1fr;
+  }
+
+  .form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button {
+    margin-top: 0;
+  }
+}
