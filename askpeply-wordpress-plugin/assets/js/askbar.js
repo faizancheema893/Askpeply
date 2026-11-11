@@ -244,9 +244,51 @@
       });
     }
 
+    /* ---------------- audio feedback (Web Audio API) */
+    var audioCtx = null;
+    function playSound(type) {
+      if (cfg.sound === false || cfg.sound === 0 || cfg.sound === "0") return;
+      try {
+        var AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtxClass) return;
+        if (!audioCtx) audioCtx = new AudioCtxClass();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+
+        var now = audioCtx.currentTime;
+        if (type === "send") {
+          var osc = audioCtx.createOscillator();
+          var gain = audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(820, now + 0.05);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === "reply") {
+          [587.33, 880].forEach(function (freq, i) {
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            var t = now + (i * 0.08);
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.1, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.25);
+          });
+        }
+      } catch (e) {}
+    }
+
     function ask(text, written) {
       text = trim(text);
       if (!text || busy) return;
+      playSound("send");
       open();
       root.classList.add("has-chat");
       input.value = "";
@@ -261,6 +303,7 @@
         addBot(markdown(plain));
         history.push({ role: "assistant", content: plain });
         setBusy(false);
+        playSound("reply");
         if (isOpen && !touch) input.focus();
       }
 

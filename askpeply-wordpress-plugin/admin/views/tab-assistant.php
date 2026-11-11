@@ -122,11 +122,22 @@ $slots        = range( 0, 3 );
 
 				<div class="ap-toggle">
 					<span style="display: grid; gap: 3px;">
+						<span class="ap-label"><?php esc_html_e( 'Microphone button (Voice input)', 'askpeply' ); ?></span>
+						<span class="ap-help"><?php esc_html_e( 'Lets customers speak their question using voice recognition (in browsers that support it).', 'askpeply' ); ?></span>
+					</span>
+					<span class="ap-switch">
+						<input type="checkbox" name="showMic" id="ap-toggle-show-mic" <?php checked( ! empty( $settings['showMic'] ) ); ?>>
+						<span></span>
+					</span>
+				</div>
+
+				<div class="ap-toggle">
+					<span style="display: grid; gap: 3px;">
 						<span class="ap-label"><?php esc_html_e( 'Sound effects', 'askpeply' ); ?></span>
 						<span class="ap-help"><?php esc_html_e( 'Soft chime when answers arrive and buttons are pressed.', 'askpeply' ); ?></span>
 					</span>
 					<span class="ap-switch">
-						<input type="checkbox" name="sound" <?php checked( ! empty( $settings['sound'] ) ); ?>>
+						<input type="checkbox" name="sound" id="ap-toggle-sound" <?php checked( ! empty( $settings['sound'] ) ); ?>>
 						<span></span>
 					</span>
 				</div>

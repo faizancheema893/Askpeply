@@ -144,6 +144,7 @@ class Admin {
 		$next['typingLines']    = isset( $_POST['typingLines'] ) ? sanitize_textarea_field( wp_unslash( $_POST['typingLines'] ) ) : '';
 		$next['note']           = isset( $_POST['note'] ) ? sanitize_text_field( wp_unslash( $_POST['note'] ) ) : '';
 		$next['showMic']        = ! empty( $_POST['showMic'] );
+		$next['sound']          = ! empty( $_POST['sound'] );
 		$next['orderTracking']  = ! empty( $_POST['orderTracking'] );
 		$next['position']       = in_array( $_POST['position'], array( 'right', 'center', 'left' ), true ) ? sanitize_text_field( $_POST['position'] ) : 'right';
 		$next['iconMode']       = in_array( $_POST['iconMode'], array( 'all', 'tablets', 'phones', 'off' ), true ) ? sanitize_text_field( $_POST['iconMode'] ) : 'all';
@@ -300,11 +301,15 @@ class Admin {
 			wp_send_json_error( array( 'message' => 'Document upload is part of the Pro plan.' ) );
 		}
 
-		if ( empty( $_FILES['file'] ) ) {
+		$file = ! empty( $_FILES['file'] ) ? $_FILES['file'] : ( ! empty( $_FILES['document'] ) ? $_FILES['document'] : null );
+		if ( empty( $file ) || empty( $file['tmp_name'] ) ) {
 			wp_send_json_error( array( 'message' => 'No file uploaded.' ) );
 		}
 
-		$file = $_FILES['file'];
+		if ( ! empty( $file['error'] ) && UPLOAD_ERR_OK !== $file['error'] ) {
+			wp_send_json_error( array( 'message' => 'File upload error code: ' . $file['error'] ) );
+		}
+
 		if ( $file['size'] > 8 * 1024 * 1024 ) {
 			wp_send_json_error( array( 'message' => 'File exceeds 8MB limit.' ) );
 		}
@@ -317,7 +322,8 @@ class Admin {
 			$base64 = base64_encode( file_get_contents( $file['tmp_name'] ) );
 			$res    = Gemini_Client::extract_pdf_text( $base64 );
 			if ( empty( $res['ok'] ) ) {
-				wp_send_json_error( array( 'message' => "Couldn't read PDF: " . ( isset( $res['error'] ) ? $res['error'] : '' ) ) );
+				$err_msg = ! empty( $res['detail'] ) ? $res['detail'] : ( ! empty( $res['error'] ) ? $res['error'] : 'Unknown error' );
+				wp_send_json_error( array( 'message' => "Couldn't read PDF: " . $err_msg ) );
 			}
 			$text = $res['text'];
 		} elseif ( preg_match( '/\.(txt|md|csv|json)$/i', $lower ) || 0 === strpos( $file['type'], 'text/' ) ) {

@@ -31,6 +31,7 @@ class Settings {
 			'sideOffset'     => 24,
 			'bottomOffset'   => 20,
 			'showMic'        => true,
+			'sound'          => true,
 			'accentCyan'     => '#38BDF8',
 			'accentViolet'   => '#8B5CF6',
 			'accentFuchsia'  => '#D946EF',

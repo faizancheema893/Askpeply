@@ -3,7 +3,7 @@
  * Plugin Name:       AskPeply
  * Plugin URI:        https://askpeply.com
  * Description:       Intelligent AI shopping assistant and compliance chatbot for WordPress & WooCommerce, powered by Google Gemini. Provides instant customer answers, store policies, FAQs, and order tracking with a stunning floating ask-bar.
- * Version:           1.0.2
+ * Version:           1.0.4
  * Author:            AskPeply
  * Author URI:        https://askpeply.com
  * License:           GPL-2.0+
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'ASKPEPLY_VERSION', '1.0.2' );
+define( 'ASKPEPLY_VERSION', '1.0.4' );
 define( 'ASKPEPLY_PLUGIN_FILE', __FILE__ );
 define( 'ASKPEPLY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ASKPEPLY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

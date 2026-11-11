@@ -317,6 +317,7 @@
         placeholder: $("input[name='placeholder']").val(),
         typingLines: $("textarea[name='typingLines']").val(),
         note: $("input[name='note']").val(),
+        showMic: $("input[name='showMic']").is(":checked") ? 1 : 0,
         sound: $("input[name='sound']").is(":checked") ? 1 : 0,
         orderTracking: $("input[name='orderTracking']").is(":checked") ? 1 : 0,
         position: $("select[name='position']").val(),
@@ -480,17 +481,53 @@
       });
     });
 
-    // Document Upload (Pro Plan)
-    $("#ap-doc-file-input").on("change", function () {
-      var file = this.files[0];
+    // Microphone toggle live preview
+    $(document).on("change", "#ap-toggle-show-mic", function () {
+      $("#ap-mock-mic-icon").toggle(this.checked);
+    });
+
+    // Sound effect preview in admin
+    function playAdminPreviewSound() {
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        var ctx = new AC();
+        if (ctx.state === "suspended") ctx.resume();
+        var now = ctx.currentTime;
+        [587.33, 880].forEach(function (f, i) {
+          var osc = ctx.createOscillator();
+          var g = ctx.createGain();
+          var t = now + (i * 0.08);
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(f, t);
+          g.gain.setValueAtTime(0.12, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+          osc.connect(g);
+          g.connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.25);
+        });
+      } catch (e) {}
+    }
+
+    $(document).on("change", "#ap-toggle-sound", function () {
+      if (this.checked) {
+        playAdminPreviewSound();
+      }
+    });
+
+    // Document Upload (Pro Plan) with Drag & Drop
+    function handleDocumentUpload(file) {
       if (!file) return;
 
       var formData = new FormData();
       formData.append("action", "askpeply_upload_document");
       formData.append("nonce", nonce);
+      formData.append("file", file);
       formData.append("document", file);
 
-      $("#ap-doc-label").text("Uploading & parsing with AI…");
+      var originalLabel = $("#ap-doc-label").text();
+      $("#ap-doc-label").text("Uploading & reading: " + file.name + "…");
 
       $.ajax({
         url: ajaxurl,
@@ -499,17 +536,43 @@
         processData: false,
         contentType: false
       }).done(function (res) {
-        $("#ap-doc-label").text("Choose a file");
+        $("#ap-doc-label").text(originalLabel);
         if (res.success) {
-          showToast("Document indexed into knowledge base");
+          showToast("Document indexed into knowledge base!");
           setTimeout(function () { window.location.reload(); }, 1200);
         } else {
           showToast("Upload failed: " + (res.data ? res.data.message : ""), true);
         }
-      }).fail(function () {
-        $("#ap-doc-label").text("Choose a file");
-        showToast("Upload request failed", true);
+      }).fail(function (xhr) {
+        $("#ap-doc-label").text(originalLabel);
+        var err = (xhr && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || "Upload request failed";
+        showToast("Upload failed: " + err, true);
       });
+    }
+
+    $("#ap-doc-file-input").on("change", function () {
+      if (this.files && this.files[0]) {
+        handleDocumentUpload(this.files[0]);
+      }
+    });
+
+    // Drag and drop onto .ap-drop
+    var $dropZone = $(".ap-drop");
+    $dropZone.on("dragover dragenter", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).css({ "border-color": "#8B5CF6", "background": "rgba(139,92,246,0.08)" });
+    });
+    $dropZone.on("dragleave dragend drop", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(this).css({ "border-color": "", "background": "" });
+    });
+    $dropZone.on("drop", function (e) {
+      var dt = e.originalEvent.dataTransfer;
+      if (dt && dt.files && dt.files.length) {
+        handleDocumentUpload(dt.files[0]);
+      }
     });
 
     /* -------------------------------------------------------------
