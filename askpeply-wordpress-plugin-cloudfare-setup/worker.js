@@ -1,6 +1,12 @@
 /**
  * AskPeply Central Server - License, Anti-Abuse Free Tier & AI Gateway
  * Cloudflare Worker with D1 Database, Google Gemini Proxy & Resend.com
+ *
+ * All secrets are managed via Cloudflare Worker Settings > Variables and Secrets:
+ * - GEMINI_API_KEY: Google Gemini API Key (starts with AIzaSy...)
+ * - RESEND_API_KEY: Resend.com API Key (starts with re_...)
+ * - RESEND_FROM_EMAIL: (Optional) Verified sender email (default: AskPeply <onboarding@resend.dev>)
+ * - DB: Cloudflare D1 Database binding
  */
 
 const CORS_HEADERS = {
@@ -36,6 +42,38 @@ function generateLicenseKey(plan) {
   return `${prefix}-${part1}-${part2}`;
 }
 
+async function getGeminiCandidateModels(apiKey) {
+  const fallback = [
+    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3-flash-preview",
+    "gemini-3.1-flash-lite",
+    "gemini-flash-latest",
+    "gemini-2.5-flash",
+  ];
+
+  try {
+    const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?pageSize=100&key=${encodeURIComponent(apiKey)}`, {
+      headers: { "x-goog-api-key": apiKey },
+    });
+    if (listRes.ok) {
+      const data = await listRes.json();
+      if (Array.isArray(data.models)) {
+        const activeModels = data.models
+          .filter((m) => (m.supportedGenerationMethods || []).includes("generateContent"))
+          .map((m) => (m.name || "").replace(/^models\//, ""))
+          .filter((name) => /flash/i.test(name) && !/(image|tts|audio|live|embed|vision|8b)/i.test(name));
+        if (activeModels.length > 0) {
+          return Array.from(new Set([...activeModels, ...fallback]));
+        }
+      }
+    }
+  } catch (e) {
+    // Fall back to static list
+  }
+  return fallback;
+}
+
 export default {
   async fetch(request, env, ctx) {
     if (request.method === "OPTIONS") {
@@ -50,7 +88,7 @@ export default {
       return jsonResponse({
         ok: true,
         service: "AskPeply Central License & AI Gateway",
-        version: "1.0.6",
+        version: "1.1.0",
       });
     }
 
@@ -218,10 +256,15 @@ export default {
           await env.DB.prepare("UPDATE licenses SET chats_used = chats_used + 1 WHERE id = ?").bind(license.id).run();
         }
 
-        const clientKey = (body.geminiApiKey && typeof body.geminiApiKey === "string" && body.geminiApiKey.trim()) ? body.geminiApiKey.trim() : null;
-        const apiKey = (clientKey && clientKey.startsWith("AIzaSy")) ? clientKey : (env.GEMINI_API_KEY || clientKey);
+        // Read Gemini API key from Cloudflare Variables and Secrets
+        const apiKey = env.GEMINI_API_KEY ? env.GEMINI_API_KEY.trim() : null;
+
         if (!apiKey) {
-          return jsonResponse({ ok: false, error: "no_api_key", reply: "Central AI key not configured on server. Please set GEMINI_API_KEY in Cloudflare Worker settings." }, 500);
+          return jsonResponse({
+            ok: false,
+            error: "no_api_key",
+            reply: "Central AI key not configured on server. Please add GEMINI_API_KEY in Cloudflare Worker Settings > Variables and Secrets."
+          }, 500);
         }
 
         const contents = (messages || []).map((m) => ({
@@ -229,18 +272,16 @@ export default {
           parts: [{ text: m.content || "" }],
         }));
 
-        const isBearer = apiKey.startsWith("AQ.");
-        const candidateModels = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash-lite"];
+        const candidateModels = await getGeminiCandidateModels(apiKey);
         let aiReply = null;
         let lastError = null;
 
         for (const model of candidateModels) {
-          const geminiUrl = isBearer
-            ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
-            : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-          const headers = { "Content-Type": "application/json" };
-          if (isBearer) headers["Authorization"] = `Bearer ${apiKey}`;
+          const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+          const headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey,
+          };
 
           try {
             const gRes = await fetch(geminiUrl, {
@@ -321,7 +362,7 @@ export default {
           .bind(newKey, email, plan, chatLimit, expiresAt.toISOString().replace("T", " ").substring(0, 19))
           .run();
 
-        // Optional: Send email via Resend if configured
+        // Optional: Send email via Resend if RESEND_API_KEY secret is configured
         if (env.RESEND_API_KEY && email && email !== "unknown@customer.com") {
           try {
             await fetch("https://api.resend.com/emails", {
@@ -375,6 +416,67 @@ export default {
       } catch (err) {
         return jsonResponse({ ok: false, error: "db_error", message: err.message }, 500);
       }
+    }
+
+    // 6. Gemini Health Check Endpoint (1-Click Browser Test)
+    if (path === "/api/test-gemini" && request.method === "GET") {
+      const apiKey = env.GEMINI_API_KEY ? env.GEMINI_API_KEY.trim() : null;
+      if (!apiKey) {
+        return jsonResponse({
+          ok: false,
+          error: "no_key",
+          message: "GEMINI_API_KEY is not set in Cloudflare Worker Settings > Variables and Secrets."
+        }, 500);
+      }
+
+      const candidateModels = await getGeminiCandidateModels(apiKey);
+      let result = null;
+      let lastErr = null;
+
+      for (const model of candidateModels) {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const headers = {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        };
+
+        try {
+          const gRes = await fetch(geminiUrl, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              contents: [{ role: "user", parts: [{ text: "Hello! Reply with the single word: SUCCESS" }] }]
+            })
+          });
+
+          const data = await gRes.text();
+          if (gRes.ok) {
+            result = { model, response: data };
+            break;
+          } else {
+            lastErr = { status: gRes.status, model, response: data };
+          }
+        } catch (e) {
+          lastErr = { error: e.message };
+        }
+      }
+
+      if (result) {
+        return jsonResponse({
+          ok: true,
+          message: "Gemini API is WORKING perfectly in Cloudflare!",
+          keyPrefix: apiKey.substring(0, 8) + "...",
+          testedModel: result.model,
+          geminiOutput: result.response
+        });
+      }
+
+      return jsonResponse({
+        ok: false,
+        message: "Gemini API rejected the key configured in Cloudflare Worker.",
+        keyPrefix: apiKey.substring(0, 8) + "...",
+        googleError: lastErr
+      }, 502);
     }
 
     return jsonResponse({ ok: false, error: "not_found", message: "Endpoint not found" }, 404);

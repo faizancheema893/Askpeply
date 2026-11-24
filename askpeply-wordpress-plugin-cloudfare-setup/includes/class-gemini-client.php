@@ -393,10 +393,11 @@ class Gemini_Client {
 			}
 
 			// License errors (expired, domain mismatch, etc.)
-			if ( ( 401 === $code || 403 === $code ) && ! empty( $json['reply'] ) ) {
+			if ( ( 401 === $code || 403 === $code ) && ! empty( $json['reply'] ) && in_array( isset( $json['error'] ) ? $json['error'] : '', array( 'unauthorized', 'domain_mismatch', 'expired' ), true ) ) {
 				return array(
 					'ok'     => false,
 					'error'  => isset( $json['error'] ) ? $json['error'] : 'license_error',
+					'reply'  => $json['reply'],
 					'detail' => $json['reply'],
 				);
 			}
