@@ -344,12 +344,13 @@ class Gemini_Client {
 		}
 
 		$payload = array(
-			'licenseKey' => $license_key,
-			'domain'     => Settings::get_normalized_domain(),
-			'storeUuid'  => Settings::get_store_uuid(),
-			'system'     => $system,
-			'messages'   => $messages,
-			'isTest'     => ! empty( $is_test ),
+			'licenseKey'   => $license_key,
+			'domain'       => Settings::get_normalized_domain(),
+			'storeUuid'    => Settings::get_store_uuid(),
+			'system'       => $system,
+			'messages'     => $messages,
+			'isTest'       => ! empty( $is_test ),
+			'geminiApiKey' => self::get_api_key(),
 		);
 
 		$res = wp_remote_post(

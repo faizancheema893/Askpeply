@@ -299,11 +299,25 @@ class Settings {
 				}
 			}
 		} else {
-			// Paid license key is active
-			$opt_plan = get_option( 'askpeply_active_plan', self::PLAN_STARTER );
-			$plan     = ! empty( $row->plan ) && isset( $plans[ $row->plan ] ) && self::PLAN_FREE !== $row->plan
-				? $row->plan
-				: ( isset( $plans[ $opt_plan ] ) ? $opt_plan : self::PLAN_STARTER );
+			// Check if 1-month subscription has expired
+			$expires_at = get_option( 'askpeply_license_expires_at' );
+			if ( ! empty( $expires_at ) && strtotime( $expires_at ) < time() ) {
+				// Monthly plan expired -> Auto-revert to Free
+				delete_option( 'askpeply_license_key' );
+				delete_option( 'askpeply_license_data' );
+				delete_option( 'askpeply_license_expires_at' );
+				$plan = self::PLAN_FREE;
+				$wpdb->update( $table, array( 'plan' => self::PLAN_FREE ), array( 'shop' => $shop ) );
+				if ( is_object( $row ) ) {
+					$row->plan = self::PLAN_FREE;
+				}
+			} else {
+				// Paid license key is active
+				$opt_plan = get_option( 'askpeply_active_plan', self::PLAN_STARTER );
+				$plan     = ! empty( $row->plan ) && isset( $plans[ $row->plan ] ) && self::PLAN_FREE !== $row->plan
+					? $row->plan
+					: ( isset( $plans[ $opt_plan ] ) ? $opt_plan : self::PLAN_STARTER );
+			}
 		}
 
 		return array(

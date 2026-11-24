@@ -1,6 +1,6 @@
 /**
  * AskPeply Central Server - License, Anti-Abuse Free Tier & AI Gateway
- * Cloudflare Worker with D1 Database, Google Gemini Proxy & Resend.com Email Delivery
+ * Cloudflare Worker with D1 Database, Google Gemini Proxy & Resend.com
  */
 
 const CORS_HEADERS = {
@@ -50,7 +50,7 @@ export default {
       return jsonResponse({
         ok: true,
         service: "AskPeply Central License & AI Gateway",
-        version: "1.0.5",
+        version: "1.0.6",
       });
     }
 
@@ -61,7 +61,7 @@ export default {
         const licenseKey = (body.licenseKey || "").trim().toUpperCase();
         const siteDomain = normalizeDomain(body.domain || request.headers.get("Origin") || request.headers.get("Referer"));
 
-        // If checking Free Tier status for a domain
+        // Free Tier Check
         if (!licenseKey || licenseKey === "FREE") {
           if (!siteDomain) {
             return jsonResponse({ ok: false, error: "missing_domain", message: "Domain is required for free tier." }, 400);
@@ -77,13 +77,7 @@ export default {
               "INSERT INTO licenses (license_key, email, plan, bound_domain, chat_limit, chats_used, status) VALUES (?, ?, 'free', ?, 20, 0, 'active')"
             ).bind(freeKey, `free@${siteDomain}`, siteDomain).run();
 
-            freeLic = {
-              plan: "free",
-              chat_limit: 20,
-              chats_used: 0,
-              bound_domain: siteDomain,
-              status: "active"
-            };
+            freeLic = { plan: "free", chat_limit: 20, chats_used: 0, bound_domain: siteDomain, status: "active" };
           }
 
           return jsonResponse({
@@ -108,26 +102,31 @@ export default {
           return jsonResponse({ ok: false, error: "inactive", message: `This license is ${license.status}.` }, 403);
         }
 
+        // Strict 30-Day Monthly Expiration Check
         if (license.expires_at) {
           const exp = new Date(license.expires_at);
           if (exp < new Date()) {
-            return jsonResponse({ ok: false, error: "expired", message: "License has expired. Please renew on AskPeply." }, 403);
+            return jsonResponse({
+              ok: false,
+              error: "expired",
+              message: "Your 1-month license subscription has expired. Please renew on AskPeply to continue."
+            }, 403);
           }
         }
 
-        // Localhost / Development check: allows testing across local environments without locking
-        const isLocalHost = (d) => !d || d === "localhost" || d === "127.0.0.1" || d.endsWith(".local") || d.endsWith(".test");
-        const isLocalPair = isLocalHost(license.bound_domain) && isLocalHost(siteDomain);
+        // Domain Locking Logic:
+        // Test keys (e.g. ASK-PRO-TEST-9999) can be used on any domain without getting locked.
+        const isTestKey = licenseKey.includes("TEST");
 
-        if (license.bound_domain && !isLocalPair) {
+        if (license.bound_domain && !isTestKey) {
           if (siteDomain && license.bound_domain !== siteDomain) {
             return jsonResponse({
               ok: false,
               error: "domain_mismatch",
-              message: `This license is already bound to domain: ${license.bound_domain}.`,
+              message: `This license is already bound to domain: ${license.bound_domain}. It cannot be used on another store.`,
             }, 403);
           }
-        } else if (siteDomain) {
+        } else if (siteDomain && !isTestKey) {
           await env.DB.prepare("UPDATE licenses SET bound_domain = ? WHERE id = ?")
             .bind(siteDomain, license.id)
             .run();
@@ -141,13 +140,14 @@ export default {
           chatsUsed: license.chats_used,
           boundDomain: license.bound_domain || siteDomain,
           status: license.status,
+          expiresAt: license.expires_at || null,
         });
       } catch (err) {
         return jsonResponse({ ok: false, error: "server_error", message: err.message }, 500);
       }
     }
 
-    // 3. AI Chat Proxy (With Server-Side 20 Free Chats & Anti-Abuse Tracking)
+    // 3. AI Chat Proxy (With Monthly Expiration, Domain Lock & Anti-Abuse)
     if (path === "/api/chat" && request.method === "POST") {
       try {
         const body = await request.json();
@@ -158,7 +158,6 @@ export default {
         let license = null;
         let isFreeTier = false;
 
-        // A. Free Tier Check (Anti-Abuse tied to store domain)
         if (!licenseKey || licenseKey === "FREE" || licenseKey.startsWith("FREE-")) {
           isFreeTier = true;
           if (!siteDomain) {
@@ -170,23 +169,14 @@ export default {
             .first();
 
           if (!license) {
-            // Register new store for 20 free chats
             const freeKey = `FREE-${siteDomain.toUpperCase()}`;
             await env.DB.prepare(
               "INSERT INTO licenses (license_key, email, plan, bound_domain, chat_limit, chats_used, status) VALUES (?, ?, 'free', ?, 20, 0, 'active')"
             ).bind(freeKey, `free@${siteDomain}`, siteDomain).run();
 
-            license = {
-              license_key: freeKey,
-              plan: "free",
-              bound_domain: siteDomain,
-              chat_limit: 20,
-              chats_used: 0,
-              status: "active"
-            };
+            license = { license_key: freeKey, plan: "free", bound_domain: siteDomain, chat_limit: 20, chats_used: 0, status: "active" };
           }
         } else {
-          // B. Paid License Check
           license = await env.DB.prepare("SELECT * FROM licenses WHERE UPPER(license_key) = UPPER(?)")
             .bind(licenseKey)
             .first();
@@ -195,48 +185,51 @@ export default {
             return jsonResponse({ ok: false, error: "unauthorized", reply: "License key is invalid or inactive." }, 403);
           }
 
-          const isLocalHost = (d) => !d || d === "localhost" || d === "127.0.0.1" || d.endsWith(".local") || d.endsWith(".test");
-          const isLocalPair = isLocalHost(license.bound_domain) && isLocalHost(siteDomain);
+          // Check monthly expiration on chat turns
+          if (license.expires_at) {
+            const exp = new Date(license.expires_at);
+            if (exp < new Date()) {
+              return jsonResponse({
+                ok: false,
+                error: "expired",
+                limit_reached: true,
+                reply: "Your AskPeply license subscription has expired. Please renew your plan on AskPeply to continue using the assistant."
+              }, 403);
+            }
+          }
 
-          if (license.bound_domain && siteDomain && license.bound_domain !== siteDomain && !isLocalPair) {
-            return jsonResponse({ ok: false, error: "domain_mismatch", reply: "License domain mismatch." }, 403);
+          // Domain binding check for chat
+          const isTestKey = licenseKey.includes("TEST");
+          if (license.bound_domain && siteDomain && license.bound_domain !== siteDomain && !isTestKey) {
+            return jsonResponse({ ok: false, error: "domain_mismatch", reply: "License key domain mismatch." }, 403);
           }
         }
 
-        // Check conversation limits (test chats do not count toward limit)
+        // Check conversation limits
         if (!isTest && license.chats_used >= license.chat_limit) {
           const limitMsg = isFreeTier
             ? "You have reached the 20 free conversations limit. Please upgrade your plan on AskPeply to continue using the assistant."
             : "Our assistant has reached its monthly conversation limit. Please upgrade your plan or contact support.";
 
-          return jsonResponse({
-            ok: false,
-            error: "limit_reached",
-            limit_reached: true,
-            reply: limitMsg,
-          }, 429);
+          return jsonResponse({ ok: false, error: "limit_reached", limit_reached: true, reply: limitMsg }, 429);
         }
 
-        // Increment usage count in DB if not test
         if (!isTest) {
-          await env.DB.prepare("UPDATE licenses SET chats_used = chats_used + 1 WHERE id = ?")
-            .bind(license.id)
-            .run();
+          await env.DB.prepare("UPDATE licenses SET chats_used = chats_used + 1 WHERE id = ?").bind(license.id).run();
         }
 
         const apiKey = env.GEMINI_API_KEY;
         if (!apiKey) {
-          return jsonResponse({ ok: false, error: "no_api_key", reply: "Central AI key not configured on server." }, 500);
+          return jsonResponse({ ok: false, error: "no_api_key", reply: "Central AI key not configured on server. Please set GEMINI_API_KEY in Cloudflare Worker settings." }, 500);
         }
 
-        // Format contents for Gemini
         const contents = (messages || []).map((m) => ({
           role: m.role === "assistant" ? "model" : "user",
           parts: [{ text: m.content || "" }],
         }));
 
         const isBearer = apiKey.startsWith("AQ.");
-        const candidateModels = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"];
+        const candidateModels = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash-lite"];
         let aiReply = null;
         let lastError = null;
 
@@ -246,9 +239,7 @@ export default {
             : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
           const headers = { "Content-Type": "application/json" };
-          if (isBearer) {
-            headers["Authorization"] = `Bearer ${apiKey}`;
-          }
+          if (isBearer) headers["Authorization"] = `Bearer ${apiKey}`;
 
           try {
             const gRes = await fetch(geminiUrl, {
@@ -293,7 +284,7 @@ export default {
       }
     }
 
-    // 4. Shopify Webhook Endpoint (Automatic License Creation on Order Payment)
+    // 4. Shopify Webhook Endpoint (Order payment)
     if (path === "/api/webhook/shopify" && request.method === "POST") {
       try {
         const order = await request.json();
@@ -321,7 +312,7 @@ export default {
 
         const newKey = generateLicenseKey(plan);
         const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 30); // 30 days valid
+        expiresAt.setDate(expiresAt.getDate() + 30); // 30 Days (1 Month)
 
         await env.DB.prepare(
           "INSERT INTO licenses (license_key, email, plan, chat_limit, status, expires_at) VALUES (?, ?, ?, ?, 'active', ?)"
@@ -329,7 +320,7 @@ export default {
           .bind(newKey, email, plan, chatLimit, expiresAt.toISOString().replace("T", " ").substring(0, 19))
           .run();
 
-        // Optional: Send automated email via Resend if API key is provided
+        // Optional: Send email via Resend if configured
         if (env.RESEND_API_KEY && email && email !== "unknown@customer.com") {
           try {
             await fetch("https://api.resend.com/emails", {
@@ -345,7 +336,7 @@ export default {
                 html: `
                   <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
                     <h2 style="color: #7C3AED; margin-top: 0;">Thank you for your purchase!</h2>
-                    <p style="color: #334155; font-size: 15px;">Your AskPeply AI Assistant <strong>${plan.toUpperCase()}</strong> subscription is now active.</p>
+                    <p style="color: #334155; font-size: 15px;">Your AskPeply AI Assistant <strong>${plan.toUpperCase()}</strong> 1-month subscription is now active.</p>
                     <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 18px; border-radius: 8px; margin: 24px 0; text-align: center;">
                       <div style="font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Your License Key</div>
                       <div style="font-family: monospace; font-size: 24px; font-weight: bold; color: #0f172a; margin-top: 8px; letter-spacing: 1px;">
@@ -356,10 +347,9 @@ export default {
                     <ol style="color: #475569; font-size: 14px; line-height: 1.7; padding-left: 20px;">
                       <li>Log in to your WordPress Admin dashboard.</li>
                       <li>Click on <strong>AskPeply &rarr; Plans & Licensing</strong> in the left sidebar.</li>
-                      <li>Paste your license key above into the box and click <strong>Activate License</strong>.</li>
+                      <li>Paste your key above into the box and click <strong>Activate License</strong>.</li>
                     </ol>
-                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-                    <p style="color: #94a3b8; font-size: 12px; margin: 0;">Need help? Reply directly to this email or visit askpeply.com.</p>
+                    <p style="color: #64748b; font-size: 13px;">This license is valid for 30 days and locks to your store domain upon activation.</p>
                   </div>
                 `,
               }),
@@ -369,13 +359,7 @@ export default {
           }
         }
 
-        return jsonResponse({
-          ok: true,
-          message: "License created successfully",
-          licenseKey: newKey,
-          plan,
-          email,
-        });
+        return jsonResponse({ ok: true, message: "License created successfully", licenseKey: newKey, plan, email, expiresAt: expiresAt.toISOString() });
       } catch (err) {
         return jsonResponse({ ok: false, error: "webhook_error", message: err.message }, 500);
       }

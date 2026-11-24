@@ -427,6 +427,9 @@ class Admin {
 		$plan = ! empty( $data['plan'] ) ? sanitize_text_field( $data['plan'] ) : 'starter';
 		update_option( 'askpeply_license_key', $license_key );
 		update_option( 'askpeply_license_data', $data );
+		if ( ! empty( $data['expiresAt'] ) ) {
+			update_option( 'askpeply_license_expires_at', sanitize_text_field( $data['expiresAt'] ) );
+		}
 		Settings::save_plan( $plan );
 
 		$plans     = Settings::get_plans();
