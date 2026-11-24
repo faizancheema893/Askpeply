@@ -102,7 +102,10 @@ $escalation_allowed    = AskPeply\Settings::plan_allows( $active_plan, 'escalati
 					<div class="ap-lock" style="margin-bottom: 12px;">
 						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
 						<div>
-							<?php echo esc_html( sprintf( __( "Custom blocked topics are part of the Growth and Pro plans. You're on %s.", 'askpeply' ), $current_plan['name'] ) ); ?>
+							<?php
+							/* translators: %s: current plan name */
+							echo esc_html( sprintf( __( "Custom blocked topics are part of the Growth and Pro plans. You're on %s.", 'askpeply' ), $current_plan['name'] ) );
+							?>
 							<a href="#tab=plans" class="ap-btn ap-btn--ghost ap-btn--sm ap-tab-link" data-tab="plans" style="margin-top: 6px; display: inline-flex;">
 								<?php esc_html_e( 'See plans', 'askpeply' ); ?>
 							</a>

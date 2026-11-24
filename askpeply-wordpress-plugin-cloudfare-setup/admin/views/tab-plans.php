@@ -55,7 +55,10 @@ $is_limit_hit = ( $used >= $limit );
 				<div style="display: grid; gap: 4px;">
 					<div style="display: flex; align-items: center; gap: 8px;">
 						<span style="font-size: 16px; font-weight: 700;">
-							<?php echo esc_html( sprintf( __( "You're on %s", 'askpeply' ), $plans[ $current ]['name'] ) ); ?>
+							<?php
+							/* translators: %s: current plan name */
+							echo esc_html( sprintf( __( "You're on %s", 'askpeply' ), $plans[ $current ]['name'] ) );
+							?>
 						</span>
 						<?php if ( AskPeply\Settings::PLAN_FREE === $current || empty( $license_key ) ) : ?>
 							<span class="ap-tag ap-tag--plain"><?php esc_html_e( 'Free Tier (20 Chats)', 'askpeply' ); ?></span>
@@ -77,7 +80,7 @@ $is_limit_hit = ( $used >= $limit );
 					</span>
 				</div>
 				<div style="width: 260px;" class="ap-meter">
-					<span style="width: <?php echo max( 3, $pct ); ?>%; <?php echo $is_limit_hit ? 'background: #EF4444;' : ''; ?>"></span>
+					<span style="width: <?php echo esc_attr( max( 3, $pct ) ); ?>%; <?php echo $is_limit_hit ? 'background: #EF4444;' : ''; ?>"></span>
 				</div>
 			</div>
 		</div>
@@ -169,7 +172,7 @@ $is_limit_hit = ( $used >= $limit );
 				<p class="ap-plan__for"><?php echo esc_html( $p['for'] ); ?></p>
 
 				<div class="ap-plan__volume">
-					<b><?php echo number_format_i18n( $p['conversations'] ); ?></b> <?php esc_html_e( 'conversations a month', 'askpeply' ); ?>
+					<b><?php echo esc_html( number_format_i18n( $p['conversations'] ) ); ?></b> <?php esc_html_e( 'conversations a month', 'askpeply' ); ?>
 				</div>
 
 				<ul>
@@ -197,7 +200,10 @@ $is_limit_hit = ( $used >= $limit );
 						class="ap-btn <?php echo $featured ? 'ap-btn--pearl' : 'ap-btn--primary'; ?>"
 						style="text-align: center; text-decoration: none;"
 					>
-						<?php echo esc_html( sprintf( __( 'Upgrade to %s', 'askpeply' ), $p['name'] ) ); ?>
+						<?php
+						/* translators: %s: upgrade plan name */
+						echo esc_html( sprintf( __( 'Upgrade to %s', 'askpeply' ), $p['name'] ) );
+						?>
 					</a>
 				<?php endif; ?>
 			</div>

@@ -73,6 +73,7 @@ $sources_map = array(
 					<p class="ap-card__desc">
 						<?php
 						if ( $last_sync_at ) {
+							/* translators: %s: relative time ago */
 							echo esc_html( sprintf( __( 'Last synced %s. Sync again after you change products, pages or policies.', 'askpeply' ), human_time_diff( strtotime( $last_sync_at ), time() ) . ' ago' ) );
 						} else {
 							esc_html_e( 'Not synced yet. Press Sync store to import your products, pages and policies.', 'askpeply' );
@@ -224,7 +225,10 @@ $sources_map = array(
 					<div class="ap-lock">
 						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 2px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
 						<div>
-							<?php echo esc_html( sprintf( __( "Document upload is part of the Pro plan. You're on %s.", 'askpeply' ), $current_plan['name'] ) ); ?>
+							<?php
+							/* translators: %s: plan name */
+							echo esc_html( sprintf( __( "Document upload is part of the Pro plan. You're on %s.", 'askpeply' ), $current_plan['name'] ) );
+							?>
 							<a href="#tab=plans" class="ap-btn ap-btn--ghost ap-btn--sm ap-tab-link" data-tab="plans" style="margin-top: 6px; display: inline-flex;">
 								<?php esc_html_e( 'See plans', 'askpeply' ); ?>
 							</a>

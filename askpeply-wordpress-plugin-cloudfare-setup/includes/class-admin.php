@@ -437,6 +437,7 @@ class Admin {
 
 		wp_send_json_success(
 			array(
+				/* translators: %s: plan name */
 				'message'   => sprintf( __( 'License activated! You are now on the %s plan.', 'askpeply' ), $plan_name ),
 				'plan'      => $plan,
 				'planName'  => $plan_name,

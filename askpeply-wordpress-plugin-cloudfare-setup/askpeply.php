@@ -1,7 +1,6 @@
 <?php
 /**
- * Plugin Name:       AskPeply - AI Shopping Assistant & Compliance Chatbot for WooCommerce
- * Plugin URI:        https://askpeply.com
+ * Plugin Name:       AskPeply
  * Description:       Intelligent AI shopping assistant and compliance chatbot for WordPress & WooCommerce, powered by Google Gemini. Provides instant customer answers, store policies, FAQs, and order tracking with a stunning floating ask-bar.
  * Version:           1.0.4
  * Author:            AskPeply

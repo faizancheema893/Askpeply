@@ -49,7 +49,9 @@ if ( 'test' === $current_filter ) {
 	}
 }
 
+// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 $total_convs = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_c} {$where_clause}" );
+// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 $conversations = $wpdb->get_results(
 	$wpdb->prepare(
 		"SELECT * FROM {$table_c} {$where_clause} ORDER BY last_message_at DESC LIMIT %d OFFSET %d",
@@ -60,6 +62,7 @@ $conversations = $wpdb->get_results(
 );
 
 // Tab Counts
+// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 $grouped_counts = $wpdb->get_results(
 	"SELECT status, COUNT(*) as cnt FROM {$table_c} WHERE shop = 'default' AND is_test = 0 GROUP BY status",
 	ARRAY_A
@@ -71,6 +74,7 @@ $conv_counts = array(
 	'blocked'    => 0,
 	'unanswered' => 0,
 	'answered'   => 0,
+	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	'test'       => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_c} WHERE shop = 'default' AND is_test = 1" ),
 );
 
@@ -109,7 +113,12 @@ $flag_labels = array(
 				← <?php esc_html_e( 'Back to Conversations', 'askpeply' ); ?>
 			</a>
 			<h1><?php esc_html_e( 'Conversation', 'askpeply' ); ?></h1>
-			<p><?php echo esc_html( sprintf( __( 'Started %s on %s', 'askpeply' ), human_time_diff( strtotime( $detail['started_at'] ), time() ) . ' ago', ! empty( $detail['page_url'] ) ? $detail['page_url'] : 'storefront' ) ); ?></p>
+			<p>
+				<?php
+				/* translators: 1: relative time ago, 2: page URL or location */
+				echo esc_html( sprintf( __( 'Started %1$s on %2$s', 'askpeply' ), human_time_diff( strtotime( $detail['started_at'] ), time() ) . ' ago', ! empty( $detail['page_url'] ) ? $detail['page_url'] : 'storefront' ) );
+				?>
+			</p>
 		</div>
 		<div class="ap-pagehead__tools">
 			<?php if ( in_array( $detail['status'], array( 'escalated', 'unanswered' ), true ) ) : ?>
@@ -229,6 +238,7 @@ $flag_labels = array(
 								<span class="ap-row__sub">
 									<?php
 									$q_count = (int) ceil( $r['message_count'] / 2 );
+									/* translators: %d: question count */
 									echo esc_html( sprintf( _n( '%d question', '%d questions', $q_count, 'askpeply' ), $q_count ) );
 									if ( ! empty( $r['page_url'] ) ) {
 										echo esc_html( ' on ' . $r['page_url'] );
@@ -253,7 +263,10 @@ $flag_labels = array(
 					<?php $total_pages = ceil( $total_convs / $per_page ); ?>
 					<div style="display: flex; gap: 8px; align-items: center; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid var(--ap-border-2);">
 						<span class="ap-faint">
-							<?php echo esc_html( sprintf( __( 'Page %d of %d', 'askpeply' ), $paged, $total_pages ) ); ?>
+							<?php
+							/* translators: 1: current page number, 2: total page count */
+							echo esc_html( sprintf( __( 'Page %1$d of %2$d', 'askpeply' ), $paged, $total_pages ) );
+							?>
 						</span>
 						<?php if ( $paged > 1 ) : ?>
 							<a href="<?php echo esc_url( add_query_arg( array( 'paged' => $paged - 1 ) ) ); ?>#tab=conversations" class="ap-btn ap-btn--secondary ap-btn--sm">

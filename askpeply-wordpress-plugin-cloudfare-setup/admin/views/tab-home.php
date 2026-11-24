@@ -139,7 +139,7 @@ $status_labels = array(
 					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
 					<?php esc_html_e( 'Conversations', 'askpeply' ); ?>
 				</span>
-				<span class="ap-metric__value"><?php echo number_format_i18n( $used ); ?></span>
+				<span class="ap-metric__value"><?php echo esc_html( number_format_i18n( $used ) ); ?></span>
 				<span class="ap-metric__hint"><?php esc_html_e( 'this month', 'askpeply' ); ?></span>
 			</div>
 			<div class="ap-metric">
@@ -147,7 +147,7 @@ $status_labels = array(
 					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.94 14.06 4 12l5.94-2.06L12 4l2.06 5.94L20 12l-5.94 2.06L12 20Z"/><path d="M19 3v4M17 5h4"/></svg>
 					<?php esc_html_e( 'Questions answered', 'askpeply' ); ?>
 				</span>
-				<span class="ap-metric__value"><?php echo number_format_i18n( $messages_count ); ?></span>
+				<span class="ap-metric__value"><?php echo esc_html( number_format_i18n( $messages_count ) ); ?></span>
 				<span class="ap-metric__hint"><?php esc_html_e( 'this month', 'askpeply' ); ?></span>
 			</div>
 			<div class="ap-metric">
@@ -155,7 +155,7 @@ $status_labels = array(
 					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
 					<?php esc_html_e( 'Blocked', 'askpeply' ); ?>
 				</span>
-				<span class="ap-metric__value"><?php echo number_format_i18n( $blocked_count ); ?></span>
+				<span class="ap-metric__value"><?php echo esc_html( number_format_i18n( $blocked_count ) ); ?></span>
 				<span class="ap-metric__hint"><?php esc_html_e( 'risky questions stopped', 'askpeply' ); ?></span>
 			</div>
 			<div class="ap-metric">
@@ -163,7 +163,7 @@ $status_labels = array(
 					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.33 2q2 0 3.07-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.53"/></svg>
 					<?php esc_html_e( 'Need your team', 'askpeply' ); ?>
 				</span>
-				<span class="ap-metric__value"><?php echo number_format_i18n( $escalated_count ); ?></span>
+				<span class="ap-metric__value"><?php echo esc_html( number_format_i18n( $escalated_count ) ); ?></span>
 				<span class="ap-metric__hint"><?php esc_html_e( 'escalated chats', 'askpeply' ); ?></span>
 			</div>
 		</section>
@@ -174,7 +174,12 @@ $status_labels = array(
 			<div class="ap-card__head">
 				<div>
 					<h3 class="ap-card__title"><?php esc_html_e( 'Get set up', 'askpeply' ); ?></h3>
-					<p class="ap-card__desc"><?php echo esc_html( sprintf( __( '%d of 5 steps done', 'askpeply' ), $done_count ) ); ?></p>
+					<p class="ap-card__desc">
+						<?php
+						/* translators: %d: count of setup steps done */
+						echo esc_html( sprintf( __( '%d of 5 steps done', 'askpeply' ), $done_count ) );
+						?>
+					</p>
 				</div>
 			</div>
 			<div class="ap-card__body ap-card__body--flush">
@@ -260,11 +265,11 @@ $status_labels = array(
 				<div style="display: flex; justify-content: space-between; font-size: 13px;">
 					<span class="ap-muted"><?php esc_html_e( 'Conversations this month', 'askpeply' ); ?></span>
 					<strong style="font-variant-numeric: tabular-nums;">
-						<?php echo number_format_i18n( $used ); ?> / <?php echo number_format_i18n( $limit ); ?>
+						<?php echo esc_html( number_format_i18n( $used ) ); ?> / <?php echo esc_html( number_format_i18n( $limit ) ); ?>
 					</strong>
 				</div>
 				<div class="ap-meter">
-					<span style="width: <?php echo max( 2, $pct ); ?>%;"></span>
+					<span style="width: <?php echo esc_attr( max( 2, $pct ) ); ?>%;"></span>
 				</div>
 				<span class="ap-faint">
 					Live store chats only. <?php echo (int) $tests_count; ?> test chat<?php echo 1 === $tests_count ? '' : 's'; ?> this month don't count.

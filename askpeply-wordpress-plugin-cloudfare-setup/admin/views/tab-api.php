@@ -41,6 +41,7 @@ $wc_active      = class_exists( 'WooCommerce' );
 								<?php
 								$lic = AskPeply\Settings::get_license_key();
 								if ( ! empty( $lic ) ) {
+									/* translators: %s: masked license key */
 									echo esc_html( sprintf( __( 'Connected via License Key (%s). AI responses routed through Cloudflare edge gateway.', 'askpeply' ), substr( $lic, 0, 11 ) . '****' ) );
 								} else {
 									esc_html_e( 'Operating on 20 Free Trial conversations. Enter your license key under Plans to scale.', 'askpeply' );
