@@ -43,14 +43,16 @@ class REST_API {
 			)
 		);
 
-		// Admin test chat endpoint (Permissive so admin test playground works without REST nonce / cookie friction)
+		// Admin test chat endpoint
 		register_rest_route(
 			self::NAMESPACE,
 			'/test',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( __CLASS__, 'handle_admin_test_chat' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
 			)
 		);
 	}
