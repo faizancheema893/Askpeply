@@ -23,7 +23,22 @@ class Gemini_Client {
 	 * Get the active API Key from .env, environment or saved settings.
 	 */
 	public static function get_api_key() {
-		// 1. Direct parsed .env file (Guaranteed across all server configurations)
+		// 1. Check saved database settings (Primary: user entered in WP Admin UI)
+		$data = Settings::get_shop_data();
+		if ( ! empty( $data['settings']['geminiApiKey'] ) ) {
+			$k = trim( $data['settings']['geminiApiKey'] );
+			if ( ! empty( $k ) && 0 !== strpos( $k, 'your_' ) ) {
+				return $k;
+			}
+		}
+
+		// 2. Check saved WordPress option
+		$opt_key = get_option( 'askpeply_gemini_api_key' );
+		if ( ! empty( $opt_key ) ) {
+			return trim( $opt_key );
+		}
+
+		// 3. Direct parsed .env file (ignoring expired AQ. tokens)
 		if ( defined( 'ASKPEPLY_PLUGIN_DIR' ) ) {
 			$env_file = ASKPEPLY_PLUGIN_DIR . '.env';
 			if ( file_exists( $env_file ) && is_readable( $env_file ) ) {
@@ -38,7 +53,7 @@ class Gemini_Client {
 							list( $k, $v ) = explode( '=', $l, 2 );
 							if ( 'GEMINI_API_KEY' === trim( $k ) && ! empty( trim( $v ) ) ) {
 								$key = trim( trim( $v ), "\"' \t\n\r\0\x0B" );
-								if ( ! empty( $key ) ) {
+								if ( ! empty( $key ) && 0 !== strpos( $key, 'your_' ) && 0 !== strpos( $key, 'AQ.Ab8RN6' ) ) {
 									return $key;
 								}
 							}
@@ -48,13 +63,7 @@ class Gemini_Client {
 			}
 		}
 
-		// 2. Check saved WordPress option
-		$opt_key = get_option( 'askpeply_gemini_api_key' );
-		if ( ! empty( $opt_key ) ) {
-			return trim( $opt_key );
-		}
-
-		// 3. Check environment variable
+		// 4. Check environment variable
 		$env_key = getenv( 'GEMINI_API_KEY' );
 		if ( ! empty( $env_key ) ) {
 			return trim( $env_key );
@@ -64,12 +73,6 @@ class Gemini_Client {
 		}
 		if ( ! empty( $_SERVER['GEMINI_API_KEY'] ) ) {
 			return trim( $_SERVER['GEMINI_API_KEY'] );
-		}
-
-		// 4. Check saved settings
-		$data = Settings::get_shop_data();
-		if ( ! empty( $data['settings']['geminiApiKey'] ) ) {
-			return trim( $data['settings']['geminiApiKey'] );
 		}
 
 		return '';
