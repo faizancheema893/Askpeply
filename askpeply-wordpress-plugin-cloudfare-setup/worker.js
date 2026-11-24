@@ -218,7 +218,8 @@ export default {
           await env.DB.prepare("UPDATE licenses SET chats_used = chats_used + 1 WHERE id = ?").bind(license.id).run();
         }
 
-        const apiKey = env.GEMINI_API_KEY;
+        const clientKey = (body.geminiApiKey && typeof body.geminiApiKey === "string" && body.geminiApiKey.trim()) ? body.geminiApiKey.trim() : null;
+        const apiKey = (clientKey && clientKey.startsWith("AIzaSy")) ? clientKey : (env.GEMINI_API_KEY || clientKey);
         if (!apiKey) {
           return jsonResponse({ ok: false, error: "no_api_key", reply: "Central AI key not configured on server. Please set GEMINI_API_KEY in Cloudflare Worker settings." }, 500);
         }
