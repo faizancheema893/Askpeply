@@ -74,7 +74,7 @@ export async function handleChat(input: ChatInput): Promise<ChatResult> {
   const question = last.content.trim().slice(0, 1500);
 
   const { settings, guardrails, plan } = await getShopData(shop);
-  const planKey = (plan in PLANS ? plan : "starter") as PlanKey;
+  const planKey = (plan in PLANS ? plan : "free") as PlanKey;
   void purgeOldData(shop, guardrails.retentionDays);
 
   // Find or start the conversation (and enforce the monthly plan limit).
@@ -85,8 +85,11 @@ export async function handleChat(input: ChatInput): Promise<ChatResult> {
     if (!input.isTest) {
       const used = await usageThisMonth(shop);
       if (used >= PLANS[planKey].conversations) {
+        const limitMsg = planKey === "free"
+          ? "You have reached the 20 free conversations limit. Please upgrade your plan in the AskPeply app to continue using the assistant."
+          : "Our assistant has reached its monthly conversation limit. Please contact our support team or upgrade your plan in AskPeply.";
         return {
-          reply: "Our assistant is unavailable right now. Please contact our support team and we'll be happy to help.",
+          reply: limitMsg,
           conversationId: null,
           status: "limit",
         };

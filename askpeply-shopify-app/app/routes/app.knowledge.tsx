@@ -39,7 +39,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   ]);
   const counts: Record<string, number> = {};
   for (const g of groups) counts[g.source] = g._count._all;
-  const plan = (row?.plan && row.plan in PLANS ? row.plan : "starter") as PlanKey;
+  const plan = (row?.plan && row.plan in PLANS ? row.plan : "free") as PlanKey;
   return {
     counts,
     total: Object.values(counts).reduce((a, b) => a + b, 0),

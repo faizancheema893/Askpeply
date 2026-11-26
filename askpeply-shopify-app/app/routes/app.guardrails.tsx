@@ -14,7 +14,7 @@ import { useNavigate } from "react-router";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const { guardrails, plan } = await getShopData(session.shop);
-  const planKey = (plan in PLANS ? plan : "starter") as PlanKey;
+  const planKey = (plan in PLANS ? plan : "free") as PlanKey;
   return {
     g: guardrails,
     planName: PLANS[planKey].name,

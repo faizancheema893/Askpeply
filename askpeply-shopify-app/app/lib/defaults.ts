@@ -119,22 +119,36 @@ export const DEFAULT_GUARDRAILS: Guardrails = {
   retentionDays: 90,
 };
 
-export type PlanKey = "starter" | "growth" | "pro";
+export type PlanKey = "free" | "starter" | "growth" | "pro";
 
 export const PLANS: Record<
   PlanKey,
   { name: string; price: number; conversations: number; features: string[] }
 > = {
+  free: {
+    name: "Free Trial",
+    price: 0,
+    conversations: 20,
+    features: [
+      "20 free AI conversations",
+      "1 connected storefront domain",
+      "Automatic product & policy sync",
+      "Core compliance & safety guardrails",
+      "Conversation logs & transcripts",
+    ],
+  },
   starter: {
     name: "Starter",
     price: 49,
     conversations: 1000,
     features: [
-      "1 storefront",
-      "Core compliance filters",
-      "Product & policy knowledge",
-      "Instant answers 24/7",
-      "Conversation logs",
+      "1,000 AI conversations / month",
+      "1 connected storefront domain",
+      "Automatic product & policy sync",
+      "Core compliance & medical claim guardrails",
+      "Zero-hallucination store knowledge",
+      "Customizable floating ask-bar",
+      "Conversation history & logs",
     ],
   },
   growth: {
@@ -142,11 +156,13 @@ export const PLANS: Record<
     price: 99,
     conversations: 5000,
     features: [
-      "Everything in Starter",
-      "Order tracking in chat",
-      "Advanced compliance controls (custom blocked topics)",
-      "Smart escalation",
-      "Priority response speed",
+      "5,000 AI conversations / month",
+      "Everything in Starter Plan",
+      "Real-time order tracking & lookup in chat",
+      "Custom blocked topics & brand guard",
+      "Smart team escalation & lead capture",
+      "Unanswered questions & demand analytics",
+      "Priority response routing via edge gateway",
     ],
   },
   pro: {
@@ -154,10 +170,13 @@ export const PLANS: Record<
     price: 199,
     conversations: 20000,
     features: [
-      "Everything in Growth",
-      "Upload your own documents (PDF, text)",
-      "Higher conversation limits",
-      "Dedicated support",
+      "20,000 AI conversations / month",
+      "Everything in Growth Plan",
+      "Custom document & PDF sync (COAs, lab tests)",
+      "Lab COA, purity & batch grounding",
+      "Deep multi-page document search",
+      "High-capacity traffic & peak scaling",
+      "Dedicated support & priority monitoring",
     ],
   },
 };
@@ -166,10 +185,10 @@ export function planAllows(
   plan: string,
   feature: "customTopics" | "escalation" | "customKnowledge" | "documents" | "orderTracking",
 ) {
-  const rank = { starter: 0, growth: 1, pro: 2 }[plan as PlanKey] ?? 0;
-  if (feature === "customTopics" || feature === "escalation" || feature === "orderTracking") return rank >= 1;
+  const rank = { free: 0, starter: 1, growth: 2, pro: 3 }[plan as PlanKey] ?? 0;
+  if (feature === "customTopics" || feature === "escalation" || feature === "orderTracking") return rank >= 2;
   if (feature === "customKnowledge") return true; // written Q&A is on every plan
-  if (feature === "documents") return rank >= 2; // document upload is Pro
+  if (feature === "documents") return rank >= 3; // document upload is Pro
   return false;
 }
 

@@ -26,7 +26,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     prisma.conversation.findMany({ where: { shop }, orderBy: { lastMessageAt: "desc" }, take: 6 }),
   ]);
 
-  const planKey = (plan in PLANS ? plan : "starter") as PlanKey;
+  const planKey = (plan in PLANS ? plan : "free") as PlanKey;
   return {
     apiKey: process.env.SHOPIFY_API_KEY || "",
     settings,
